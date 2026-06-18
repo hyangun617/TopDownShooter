@@ -924,10 +924,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: b89288ba-8bda-416d-8a07-4b72ed635533
+  cloudProjectId: 01155c2f-bede-40bd-be94-9fcfb3d3f6da
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: TopDownShooter
+  projectName: TopDownShooter 2026-06-18_09-25-31
   organizationId: hyangun617
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
