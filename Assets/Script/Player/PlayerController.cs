@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 
     // 이동 속도
     [SerializeField] private float moveSpeed = 10f;
+    
 
     private void Awake()
     {
