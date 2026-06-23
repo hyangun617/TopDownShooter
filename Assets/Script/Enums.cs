@@ -1,0 +1,6 @@
+﻿enum EnemyType
+{
+    Melee,
+    Rangled
+}
+

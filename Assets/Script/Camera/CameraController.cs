@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
     // 플레이어의 오브젝트를 담을 변수
     [SerializeField] private GameObject player;
