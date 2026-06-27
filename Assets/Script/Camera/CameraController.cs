@@ -21,7 +21,7 @@ public class CameraController : MonoBehaviour
         // 회전 초기값 지정.
         Rotation = Quaternion.Euler(60f, 0f, 0f);
         // 오프셋 초기값 지정
-        offset = new Vector3(0f, 10f, -5f);
+        offset = new Vector3(0f, 10f, -5f);        
     }
 
     private void LateUpdate()
