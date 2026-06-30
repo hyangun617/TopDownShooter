@@ -1,6 +1,7 @@
-﻿enum EnemyType
+﻿public enum EnemyType
 {
     Melee,
-    Rangled
+    Rangled,
+    Boss
 }
 

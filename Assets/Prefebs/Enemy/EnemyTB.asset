@@ -13,21 +13,19 @@ MonoBehaviour:
   m_Name: EnemyTB
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTB
   enemyList:
-  - id: 0
-    maxHp: 0
-    currentHp: 0
-    attackPoint: 0
-    defensePoint: 0
-    movementSpeed: 0
-    attackDelay: 0
-    attackRange: 0
-    enemyType: 0
-  - id: 0
-    maxHp: 0
-    currentHp: 0
-    attackPoint: 0
-    defensePoint: 0
-    movementSpeed: 0
-    attackDelay: 0
-    attackRange: 0
-    enemyType: 0
+  - _id: 0
+    _maxHp: 10
+    _attackPoint: 1
+    _defensePoint: 1
+    _movementSpeed: 1
+    _attackDelay: 0
+    _attackRange: 1
+    _enemyType: 0
+  - _id: 1
+    _maxHp: 20
+    _attackPoint: 1
+    _defensePoint: 1
+    _movementSpeed: 1
+    _attackDelay: 1
+    _attackRange: 1
+    _enemyType: 0

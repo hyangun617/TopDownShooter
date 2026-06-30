@@ -1,11 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using System;
 
 public class InputManager : MonoBehaviour
 {
-    public static InputManager Instance { get; private set; }
+    private static InputManager _instance;
+    public static InputManager Instance
+    {
+        get
+        {
+            if(_instance == null)
+            {
+                _instance = FindAnyObjectByType<InputManager>();
+
+                if(_instance == null)
+                {
+                    GameObject go = new GameObject("InputManager_AutoCreated");
+                    _instance = go.AddComponent<InputManager>();
+                }
+            }
+            return _instance;
+        }
+    }
 
     [SerializeField] private int groundLayer;                        // Physics.Raycast의 레이어 마스크를 위한 int 변수.
 
@@ -21,6 +37,7 @@ public class InputManager : MonoBehaviour
     private float fireHoldTime = 0f;                                // 입력을 길게 누른 시간.
 
     // event
+    public event Action OnInputInitialized;                       // InputManager 초기화 완료 이벤트
     public event Action<FireEventArgs> OnFire;                  // 발사 입력값을 전달할 이벤트
     public event Action<Vector2> OnMove;                       // 이동 입력값을 전달할 이벤트
 
@@ -28,17 +45,18 @@ public class InputManager : MonoBehaviour
     private void Awake()
     {
         inputSystem = new InputSystem();
+        Init();
     }
 
     // 초기화. 
     // GameManager.cs에서 호출됨.
     public void Init()
     {
-        Debug.Log("Input Manager Init");
-        Instance = this;
+        _instance = this;
             
         cam = Camera.main;                                         // 메인 카메라 할당.
-        groundLayer = LayerMask.GetMask("Ground");          // 레이어 마스크 참조, 해당 이름으로 된 레이어가 지정된 순서를 읽어옴.
+        groundLayer = LayerMask.GetMask("Ground");                  // 레이어 마스크 참조, 해당 이름으로 된 레이어가 지정된 순서를 읽어옴.
+        OnInputInitialized?.Invoke();                              // InputManager 초기화 완료 이벤트 호출.
     }
 
     private void OnEnable()
