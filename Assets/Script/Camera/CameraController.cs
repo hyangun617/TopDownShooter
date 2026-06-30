@@ -31,6 +31,7 @@ public class CameraController : MonoBehaviour
 
         // 카메라 회전.
         transform.rotation = Rotation;
+        
     }
 
 }
