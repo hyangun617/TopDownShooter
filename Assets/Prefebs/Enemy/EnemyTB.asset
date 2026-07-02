@@ -20,6 +20,7 @@ MonoBehaviour:
     _movementSpeed: 1
     _attackDelay: 0
     _attackRange: 1
+    _detectRange: 0
     _enemyType: 0
   - _id: 1
     _maxHp: 20
@@ -28,4 +29,5 @@ MonoBehaviour:
     _movementSpeed: 1
     _attackDelay: 1
     _attackRange: 1
+    _detectRange: 5
     _enemyType: 0

@@ -7,6 +7,7 @@ public class DataManager
 {
     // 데이터 목록
     public EnemyTB enemyTB;
+    
     // 데이터 초기화 완료 여부
     public bool _isDataInitialized { get; private set; } = false;
 

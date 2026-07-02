@@ -1,20 +1,34 @@
 ﻿using System;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
-public class Enemy : UnitBase, IDamagable
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
+public abstract class Enemy : UnitBase, IDamagable
 {
     // 기본 스텟 데이터
+    [Header("Enemy Data")]
     [SerializeField] protected EnemyData Stat;
 
     // 데이터 값을 지정할 Id;
-    [SerializeField] private int unitId;
+    [SerializeField] protected int unitId;
 
     // 런타임 멤버 값.
-    [SerializeField] private float currentHp;
+    [Header("Runtime Data")]
+    [SerializeField] protected float currentHp;
 
     // 피격시 호출 할 이벤트.
     public Action<float> takeDamageEvent;
+
+    // 판정을 위한 레이어 마스크
+    [Header("Target Layer Mask")]
+    [SerializeField] protected LayerMask targetLayerMask;
+    [SerializeField] protected LayerMask obstacleLayerMask;
+    [SerializeField] protected Transform target;
+
+    // 디버깅용 멤버
+    public Color bcolor = Color.green;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -26,7 +40,8 @@ public class Enemy : UnitBase, IDamagable
         else GameManager.Instance.Data.OnDataInitialized += SetupEnemy;
     }
 
-    void SetupEnemy()
+    // 자식 객체는 이 메서드를 오버라이드하여 EnemyData를 로드하고, 현재 체력을 최대 체력으로 초기화 할 수 있다.
+    protected virtual void SetupEnemy()
     {
         // EnemyData를 로드하고 현재 체력을 최대 체력으로 초기화
         LoadEnemyData(unitId);
@@ -40,7 +55,8 @@ public class Enemy : UnitBase, IDamagable
         Stat = GameManager.Instance.Data.enemyTB.GetEnemyDataById(id);
     }
 
-    public void TakeDamage(float value)
+    // IDamagable 인터페이스 구현
+    public virtual void TakeDamage(float value)
     {
         // 데미지 계산
         currentHp -= value;
@@ -48,4 +64,16 @@ public class Enemy : UnitBase, IDamagable
         // 이벤트 호출
         takeDamageEvent?.Invoke(currentHp);
     }
+
+    // 디버깅용 범위 표시
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        // 선 색상 지정
+        Handles.color = bcolor;
+
+        // 원 그리기
+        Handles.DrawWireDisc(transform.position, Vector3.up, Stat.DetectRange);        
+    }
+#endif
 }
