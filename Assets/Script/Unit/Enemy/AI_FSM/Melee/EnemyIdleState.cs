@@ -16,6 +16,8 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
         // 상태 진입 시 로직
         Debugger.Log($"{enemy.name} entered Idle State.");
 
+        enemy.bcolor = Color.green;
+
         // 코루틴 실행
         detectCoroutine = enemy.StartCoroutine(DetectPlayerCoroutine());
     }
