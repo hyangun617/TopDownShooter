@@ -7,6 +7,7 @@ public class MeleeEnemy : Enemy
     // State에서 Stat에 접근하기 위한 공개 프로퍼티
     public float MoveSpeed => Stat.MovementSpeed;
     public float AttackRange => Stat.AttackRange;
+    public float AttackDelay => Stat.AttackDelay;
     public float DetectRange => Stat.DetectRange;
     public float CurrentHp => currentHp;
 
