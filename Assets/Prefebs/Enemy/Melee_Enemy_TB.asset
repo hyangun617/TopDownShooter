@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b72e6132dbc266d49bf018a3548f202b, type: 3}
-  m_Name: EnemyTB
+  m_Name: Melee_Enemy_TB
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTB
   enemyList:
   - _id: 0
     _maxHp: 10
-    _attackPoint: 1
-    _defensePoint: 1
-    _movementSpeed: 1
-    _attackDelay: 0
-    _attackRange: 1
-    _detectRange: 0
+    _attackPoint: 5
+    _defensePoint: 5
+    _movementSpeed: 5
+    _attackDelay: 10
+    _attackRange: 5
+    _detectRange: 20
     _enemyType: 0
   - _id: 1
     _maxHp: 20
-    _attackPoint: 1
-    _defensePoint: 1
-    _movementSpeed: 1
-    _attackDelay: 1
-    _attackRange: 1
-    _detectRange: 5
+    _attackPoint: 7
+    _defensePoint: 7
+    _movementSpeed: 5
+    _attackDelay: 10
+    _attackRange: 5
+    _detectRange: 20
     _enemyType: 0

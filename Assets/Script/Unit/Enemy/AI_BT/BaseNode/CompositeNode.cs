@@ -16,4 +16,6 @@ public abstract class CompositeNode : INode
     }
 
     public abstract NodeState Tick();
+
+    public virtual void Cancel() { }
 }

@@ -28,12 +28,9 @@ public class EnemyChaseState : EnemyBaseState<MeleeEnemy>
         // 플레이어의 위치를 받아와 거리를 계산
         Vector3 targetPos = enemy.Target.position;
         Vector3 myPos = enemy.transform.position;
-
-        // 방향 벡터를 구해 일반화.
-        Vector3 dir = (targetPos - myPos).normalized;
         
-        // 해당 방향으로 이동.
-        enemy.transform.position += dir * enemy.MoveSpeed * Time.deltaTime;
+        // 이동 메서드 호출.
+        enemy.MoveToward(targetPos, enemy.MoveSpeed);
 
         // 거리가 탐지 범위를 벗어나면 -> idle
         // 거리가 공격 범위 내라면 -> attack

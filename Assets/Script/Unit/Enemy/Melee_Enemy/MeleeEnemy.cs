@@ -4,18 +4,6 @@ public class MeleeEnemy : Enemy
 {
     private EnemyStateMachine<MeleeEnemy> stateMachine;
 
-    // State에서 Stat에 접근하기 위한 공개 프로퍼티
-    public float MoveSpeed => Stat.MovementSpeed;
-    public float AttackRange => Stat.AttackRange;
-    public float AttackDelay => Stat.AttackDelay;
-    public float DetectRange => Stat.DetectRange;
-    public float CurrentHp => currentHp;
-
-    // 타겟에 접근하기 위한 프로퍼티
-    public Transform Target => target;
-    public LayerMask TargetLayerMask => targetLayerMask;
-    public LayerMask ObstacleLayerMask => obstacleLayerMask;
-
     protected override void SetupEnemy()
     {
         base.SetupEnemy();
@@ -39,6 +27,11 @@ public class MeleeEnemy : Enemy
     {
         // 상태 머신 업데이트 -> FSM AI
         stateMachine?.Update();
+    }
+
+    protected override void LoadEnemyData(int id)
+    {
+        Stat = GameManager.Instance.Data.meleeEnemyTB.GetEnemyDataById(id);
     }
 
     public override void TakeDamage(float value)

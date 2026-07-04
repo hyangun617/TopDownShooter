@@ -1,4 +1,3 @@
-using UnityEngine.Rendering.Universal;
 
 public abstract class DecoratorNode : INode
 {
@@ -18,5 +17,15 @@ public abstract class DecoratorNode : INode
         this.child = child;
     }
 
+    public INode GetChild()
+    {
+        return child;
+    }
+
     public abstract NodeState Tick();
+
+    public virtual void Cancel()
+    {
+        child.Cancel();
+    }
 }

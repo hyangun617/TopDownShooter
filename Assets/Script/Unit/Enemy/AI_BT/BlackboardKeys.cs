@@ -1,3 +1,5 @@
+using System.Reflection;
+
 public static class BlackboardKeys
 {
     public const string Target = "Target";                              // 타겟
@@ -6,4 +8,5 @@ public static class BlackboardKeys
     public const string DetectRadius = "DetectRadius";                  // 감지 범위
     public const string TargetLayerMask = "TargetLayerMask";            // 타겟 레이어 마스크
     public const string ObstacleLayerMask = "ObstacleLayerMask";        // 장애물 레이어 마스크
+    public const string MovementSpeed = "MovementSpeed";                // 이동 속도
 }
