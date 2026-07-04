@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using MyGame.Utility;
 
 public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
 {
@@ -14,7 +13,7 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
     public override void Enter()
     {
         // 상태 진입 시 로직
-        Debugger.Log($"{enemy.name} entered Idle State.");
+        MyGame.Utility.Debugger.Log($"{enemy.name} entered Idle State.");
 
         enemy.bcolor = Color.green;
 

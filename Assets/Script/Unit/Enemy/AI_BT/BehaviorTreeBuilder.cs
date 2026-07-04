@@ -20,6 +20,23 @@ public class BehaviorTreeBuilder
             rootNode = node;
             return;
         }
+
+        // 부모 노드의 타입을 알아야 함.
+        INode parent = parentStack.Peek();
+
+        if(parent is CompositeNode composite)
+        {
+            composite.AddChild(node);
+        }
+        else if(parent is DecoratorNode decorator)
+        {
+            if(decorator.GetChild() != null)
+            {
+                // 이미 자식이 있으므로 오류 발생.
+                throw new InvalidOperationException("DecoratorNode는 단 하나의 자식 노드만 갖을 수 있습니다.");
+            }
+            decorator.SetChild(node);
+        }
     }
 
     // 컴포사이트 노드 추가
@@ -52,6 +69,14 @@ public class BehaviorTreeBuilder
     // Composite/Decorator 메서드 호출 수와 End 메서드의 호출 수가 같아야 함.
     public BehaviorTreeBuilder End()
     {
+        if(parentStack.Count == 0)
+            throw new InvalidOperationException("BT Builder : 닫을 부모 노드가 존재하지 않습니다.");
+        
+        // 데코레이터 노드인 경우 자식 노드 검사
+        INode closeNode = parentStack.Peek();
+        if(closeNode is DecoratorNode decorator && decorator.GetChild() == null)
+            throw new InvalidOperationException("DecoratorNode에 자식 노드가 지정되지 않았습니다.");
+
         parentStack.Pop();
         return this;
     }
