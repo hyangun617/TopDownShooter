@@ -1,8 +1,11 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class RangeEnemy : Enemy
 {
+    // 공격 컴포넌트
+    public UnitRangeAttack rangeAttack; 
+
     // AI : BehaviorTree
     private BehaviorTree behaviorTree;
     private Blackboard blackboard;
@@ -11,15 +14,19 @@ public class RangeEnemy : Enemy
     {
         base.Awake();
 
-        
+        rangeAttack = GetComponent<UnitRangeAttack>();
     }
 
     protected override void Start()
     {
         base.Start();
+        RunWhenDataReady(SetupBehaviorTree);
+        health.OnDeath += HandleDeath;
+    }
 
-        if(GameManager.Instance.Data._isDataInitialized) SetupBehaviorTree();
-        else GameManager.Instance.Data.OnDataInitialized += SetupBehaviorTree;
+    private void HandleDeath()
+    {
+        behaviorTree?.Pause();
     }
 
     // Update is called once per frame
@@ -36,6 +43,10 @@ public class RangeEnemy : Enemy
     protected override void LoadEnemyData(int id)
     {
         Stat = GameManager.Instance.Data.rangeEnemyTB.GetEnemyDataById(id);
+
+        rangeAttack.AttackDamage = Stat.AttackPoint;
+        rangeAttack.AttackDelay = Stat.AttackDelay;
+        rangeAttack.AttackRange = Stat.AttackRange;
     }
 
     private void SetupBehaviorTree()
@@ -50,18 +61,10 @@ public class RangeEnemy : Enemy
         INode root = BuildTree(blackboard);
         behaviorTree = new BehaviorTree(root, blackboard);
         behaviorTree.SetDelay(0.1f);
-
-        GameManager.Instance.Data.OnDataInitialized -= SetupBehaviorTree;
     }
 
-    // 공격 메서드
-    public void RangeAttack()
-    {
-        // 원거리 공격 메서드
+    public void PlayAttack(Vector3 dir) => rangeAttack.PlayAttack(dir);
 
-        Debug.Log("Range Attack!");
-    }
-    
     // 트리 구조 BehaviorTree
     private INode BuildTree(Blackboard blackboard)
     {

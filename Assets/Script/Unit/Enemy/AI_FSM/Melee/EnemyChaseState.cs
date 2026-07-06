@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyChaseState : EnemyBaseState<MeleeEnemy>
 {
-    public EnemyChaseState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine) : base(enemy, stateMachine)
+    public EnemyChaseState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
     }
@@ -19,14 +19,14 @@ public class EnemyChaseState : EnemyBaseState<MeleeEnemy>
     {
         // 상태 업데이트 로직
         // target이 존재하지 않는 경우 Idle 상태로 변화
-        if(enemy.Target == null)
+        if(context.Target == null)
         {
             stateMachine.ChangeState<EnemyIdleState>();
             return;
         }
 
         // 플레이어의 위치를 받아와 거리를 계산
-        Vector3 targetPos = enemy.Target.position;
+        Vector3 targetPos = context.Target.position;
         Vector3 myPos = enemy.transform.position;
         
         // 이동 메서드 호출.

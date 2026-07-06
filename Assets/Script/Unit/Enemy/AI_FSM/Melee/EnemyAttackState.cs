@@ -5,7 +5,7 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
     // 공격 딜레이 시간.
     private float attackTimer;
 
-    public EnemyAttackState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine) : base(enemy, stateMachine)
+    public EnemyAttackState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
     }
@@ -16,27 +16,38 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
         MyGame.Utility.Debugger.Log($"{enemy.name} entered Attack State.");
 
         // 진입 시 공격 딜레이
-        attackTimer = enemy.AttackDelay;
+        attackTimer = 0f;
     }
 
     public override void Update()
     {
         // 상태 업데이트 로직
         // target이 존재하지 않는 경우 Idle 상태로 변화
-        if(enemy.Target == null)
+        if(context.Target == null)
         {
             stateMachine.ChangeState<EnemyIdleState>();
             return;
         }
 
+        enemy.StopMoving();
+
+        // 딜레이(후딜) 진행 중 
+        // 사거리 판단 보류 및 제자리 대기
+        attackTimer -= Time.deltaTime;
+        if(attackTimer > 0f)
+        {
+            return;
+        }
+
+        // 딜레이가 끝난 후 공격 및 추격을 재판단함.
         // 공격 사거리 내면 공격 메서드 실행.
         // 공격 사거리 밖이라면 ChaseState로 상태 전환
-
-        Vector3 targetPos = enemy.Target.position;
+        // y축 벡터 값은 무시함.
+        Vector3 targetPos = context.Target.position;
         Vector3 myPos = enemy.transform.position;
-
-        // 플레이어를 향한 방향 
-        Vector3 dir = (targetPos - myPos).normalized;
+        Vector3 dir = targetPos - myPos;
+        dir.y = 0f;
+        dir.Normalize();
 
         // 플레이어와의 거리를 구함.
         float dist = Vector3.Distance(myPos, targetPos);
@@ -44,28 +55,15 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
         if(dist > enemy.AttackRange)
         {
             stateMachine.ChangeState<EnemyChaseState>();   
+            return;
         }
 
-        // 사거리 안이라면 타이머가 감소해, 0 이하가 되면 공격 실행.
-        attackTimer -= Time.deltaTime;
-        if(attackTimer <= 0f)
-        {
-            playAttack(dir);
-            attackTimer = enemy.AttackDelay;
-        }
+        enemy.PlayAttack(dir);
+        attackTimer = enemy.AttackDelay;
     }
 
     public override void Exit()
     {
         // 상태 종료 로직
-    }
-
-    // 공격 실행 메서드.
-    private void playAttack(Vector3 dir)
-    {
-        MyGame.Utility.Debugger.Log($"{enemy.name}'s Attack!");
-
-        // 실제 데미지 판정.
-
     }
 }

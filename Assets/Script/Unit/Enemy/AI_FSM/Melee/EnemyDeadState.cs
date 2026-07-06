@@ -1,6 +1,6 @@
 public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
 {
-    public EnemyDeadState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine) : base(enemy, stateMachine)
+    public EnemyDeadState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
     }

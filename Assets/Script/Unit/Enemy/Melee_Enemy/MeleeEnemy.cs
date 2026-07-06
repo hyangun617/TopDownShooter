@@ -1,8 +1,20 @@
 using UnityEngine;
+using System.Collections;
 
 public class MeleeEnemy : Enemy
 {
     private EnemyStateMachine<MeleeEnemy> stateMachine;
+    private EnemyFSM_Context context;
+
+    // 공격 컴포넌트
+    public UnitMeleeAtack meleeAttack;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        // 공격 컴포넌트 
+        meleeAttack = GetComponent<UnitMeleeAtack>();
+    }
 
     protected override void SetupEnemy()
     {
@@ -10,38 +22,36 @@ public class MeleeEnemy : Enemy
 
         // 상태 머신 초기화
         stateMachine = new EnemyStateMachine<MeleeEnemy>();
-        stateMachine.Register(new EnemyIdleState(this, stateMachine));
-        stateMachine.Register(new EnemyChaseState(this, stateMachine));
-        stateMachine.Register(new EnemyAttackState(this, stateMachine));
-        stateMachine.Register(new EnemyDeadState(this, stateMachine));
+        context = new EnemyFSM_Context();
+        stateMachine.Register(new EnemyIdleState(this, stateMachine, context));
+        stateMachine.Register(new EnemyChaseState(this, stateMachine, context));
+        stateMachine.Register(new EnemyAttackState(this, stateMachine, context));
+        stateMachine.Register(new EnemyDeadState(this, stateMachine, context));
 
         stateMachine.Initialize<EnemyIdleState>();
-    }
 
-    public void SetTarget(Transform newTarget)
-    {
-        target = newTarget;
-    }
-
-    void Update()
-    {
-        // 상태 머신 업데이트 -> FSM AI
-        stateMachine?.Update();
+        health.OnDeath += HandleDeath;
     }
 
     protected override void LoadEnemyData(int id)
     {
         Stat = GameManager.Instance.Data.meleeEnemyTB.GetEnemyDataById(id);
+
+        meleeAttack.AttackDamage = Stat.AttackPoint;
+        meleeAttack.AttackRange = Stat.AttackRange;
+        meleeAttack.AttackDelay = Stat.AttackDelay;
     }
 
-    public override void TakeDamage(float value)
+    private void HandleDeath()
     {
-        base.TakeDamage(value); // 데미지 계산 + 이벤트 호출 로직
+        stateMachine.ChangeState<EnemyDeadState>();
+    }
 
-        // 체력 체크 후 상태 전환
-        if (currentHp <= 0)
-        {
-            stateMachine.ChangeState<EnemyDeadState>();
-        }
+    public void PlayAttack(Vector3 dir) => meleeAttack.PlayAttack(dir);
+
+    void Update()
+    {
+        // 상태 머신 업데이트 -> FSM AI
+        stateMachine?.Update();
     }
 }

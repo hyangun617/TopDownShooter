@@ -5,11 +5,13 @@ public abstract class EnemyBaseState<T> : IEnemyState where T : Enemy
 
     // 상태 전환을 위한 객체 참조.
     protected readonly EnemyStateMachine<T> stateMachine;
+    protected EnemyFSM_Context context;
 
-    public EnemyBaseState(T enemy, EnemyStateMachine<T> stateMachine)
+    public EnemyBaseState(T enemy, EnemyStateMachine<T> stateMachine, EnemyFSM_Context context)
     {
         this.enemy = enemy;
         this.stateMachine = stateMachine;
+        this.context = context;
     }
 
     public abstract void Enter();
