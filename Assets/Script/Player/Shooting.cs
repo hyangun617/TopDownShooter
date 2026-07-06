@@ -3,24 +3,20 @@ using UnityEngine;
 
 public class Shooting : MonoBehaviour
 {
-    [Header("기본 설정 (Defaults)")]
-    [SerializeField] private float damage = 10f;                 // 기본 데미지
-    [SerializeField] private float fireRate = 0.2f;                 // 사격 딜레이
-    [SerializeField] private float range = 50f;                    // 사거리.
+    private Player player;
 
     [Header("시각 효과 (Visuals)")]
-    [SerializeField] private Transform firePoint;                // 총구 위치
-    [SerializeField] private LineRenderer bulletTrail;              // 궤적을 그릴 렌더러
+    [SerializeField] private Transform firePoint;                  // 총구 위치
+    [SerializeField] private LineRenderer bulletTrail;             // 궤적을 그릴 렌더러
 
-    private LayerMask attackableLayer;
-
-
-    private float fireCooldown = 0f;                               // 다음 발사까지 남은 시간을 추적하는 타이머.
-    private bool isFiring = false;                                   // 발사 여부.
+    private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
+    private float fireCooldown = 0f;                                // 다음 발사까지 남은 시간을 추적하는 타이머.
+    private bool isFiring = false;                                  // 발사 여부.
 
     private void Awake()
     {
         attackableLayer = LayerMask.GetMask("Attackable");
+        player = GetComponent<Player>();
     }
 
     private void OnEnable()
@@ -74,32 +70,41 @@ public class Shooting : MonoBehaviour
 
     private void Fire()
     {
+        // Top-Down 이기 때문에 Y축 값은 무시함. 
         // input Manager에서 마우스의 위치를 받아옴.
-        Vector3 ClickPoint = InputManager.Instance.mouseWorldPos;
+        Vector3 ClickPoint = new Vector3(InputManager.Instance.mouseWorldPos.x, 0f, InputManager.Instance.mouseWorldPos.z);
+
+        // fixed fire Postion
+        Vector3 fixedFirePosition = new Vector3(firePoint.position.x, 0f, firePoint.transform.position.z);
 
         // 현재 플레이어의 위치부터 클릭 위치까지의 벡터를 단위 벡터화 시킴.
         // 방향만을 남기기 위함.
-        Vector3 direction = (ClickPoint - firePoint.position).normalized;
+        Vector3 direction = (ClickPoint - fixedFirePosition).normalized;
 
         // 궤적 활성화
         bulletTrail.enabled = true;
-        bulletTrail.SetPosition(0, firePoint.position);
+        bulletTrail.SetPosition(0, firePoint.transform.position);
 
         // 플레이어의 위치에서 단위 벡터 direction의 방향으로 range 만큼의 사거리로 ray 발사. -> attackableLayer의 레이어만 감지함.
-        if(Physics.Raycast(transform.position, direction, out RaycastHit otherHit, range, attackableLayer))
+        if(Physics.Raycast(firePoint.transform.position, direction, out RaycastHit otherHit, player.AttackRange, attackableLayer))
         {
+            Debug.Log($"Hit Object: {otherHit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(otherHit.collider.gameObject.layer)}");
+
             // 상대방 객체의 충돌체를 읽어와 오브젝트를 감지함.
+            Vector3 lastPoint = new Vector3(otherHit.point.x, firePoint.transform.position.y, otherHit.point.z);
+            bulletTrail.SetPosition(1, lastPoint);
 
-            bulletTrail.SetPosition(1, otherHit.point);
-
-            Debug.Log($"{firePoint.position}, {otherHit.point} FIRE!");
+            if(otherHit.collider.TryGetComponent<IDamagable>(out var enemy))
+            {
+                enemy.TakeDamage(player.DamagePoint);
+            }
         }
         else // 아무도 맞지 않은 경우
         {
-            Vector3 endPoint = firePoint.position + direction * range;
+            Vector3 endPoint = fixedFirePosition + direction * player.AttackRange;
             bulletTrail.SetPosition(1, endPoint);
 
-            Debug.Log($"{firePoint.position}, {endPoint} FIRE!");
+            Debug.Log($"{firePoint.transform.position}, {endPoint} FIRE!");
         }
 
         // 코루틴을 사용하여 0.05초만 라인이 보이도록 함.
@@ -108,9 +113,9 @@ public class Shooting : MonoBehaviour
         StartCoroutine(nameof(FlashBulletTrail));
 
         // 디버그 전용, 씬에서만 해당 라인이 보임.
-        Debug.DrawLine(firePoint.position, bulletTrail.GetPosition(1), Color.red, 0.5f);
+        Debug.DrawLine(firePoint.transform.position, bulletTrail.GetPosition(1), Color.red, 0.5f);
         
-        fireCooldown = fireRate;
+        fireCooldown = player.FireRate;
     }
 
     private IEnumerator FlashBulletTrail()

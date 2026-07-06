@@ -6,23 +6,23 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    [SerializeField] private int groundLayer;                        // Physics.Raycast의 레이어 마스크를 위한 int 변수.
+    [SerializeField] private int groundLayer;                       // Physics.Raycast의 레이어 마스크를 위한 int 변수.
 
-    private Camera cam;                                              // 카메라를 기준으로 마우스의 위치를 읽어오기 때문에 카메라 객체를 읽어와야함.
+    private Camera cam;                                             // 카메라를 기준으로 마우스의 위치를 읽어오기 때문에 카메라 객체를 읽어와야함.
 
-    private Vector2 mouseScreenPos;                               // 실시간 마우스 위치.
-    private InputSystem inputSystem;                               // 마우스 입력을 받아올 InputSystem
-    public Vector3 mouseWorldPos { get; private set; }         // 레이캐스트를 통해 구한 마우스의 위치를 저장하는 프로퍼티
+    private Vector2 mouseScreenPos;                                 // 실시간 마우스 위치.
+    private InputSystem inputSystem;                                // 마우스 입력을 받아올 InputSystem
+    public Vector3 mouseWorldPos { get; private set; }              // 레이캐스트를 통해 구한 마우스의 위치를 저장하는 프로퍼티
 
-    public bool IsInputEnabled { get; set; } = true;              // 입력 활성화 여부
-    public bool isMouseOverUI;                                     // UI 위의 마우스 존재 여부
+    public bool IsInputEnabled { get; set; } = true;                // 입력 활성화 여부
+    public bool isMouseOverUI;                                      // UI 위의 마우스 존재 여부
 
     private float fireHoldTime = 0f;                                // 입력을 길게 누른 시간.
 
     // event
-    public event Action OnInputInitialized;                       // InputManager 초기화 완료 이벤트
-    public event Action<FireEventArgs> OnFire;                  // 발사 입력값을 전달할 이벤트
-    public event Action<Vector2> OnMove;                       // 이동 입력값을 전달할 이벤트
+    public event Action OnInputInitialized;                         // InputManager 초기화 완료 이벤트
+    public event Action<FireEventArgs> OnFire;                      // 발사 입력값을 전달할 이벤트
+    public event Action<Vector2> OnMove;                            // 이동 입력값을 전달할 이벤트
 
     // 참조 세팅
     private void Awake()

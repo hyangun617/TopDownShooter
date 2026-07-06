@@ -10,7 +10,7 @@ public class DataManager
     public EnemyTB rangeEnemyTB;
     
     // 데이터 초기화 완료 여부
-    public bool _isDataInitialized { get; private set; } = false;
+    public bool IsDataInitialized { get; private set; } = false;
 
     // 초기화 완료 이벤트
     public event Action OnDataInitialized;
@@ -22,7 +22,7 @@ public class DataManager
     public void Init()
     {
         // 초기화 여부 확인. 이미 초기화가 완료된 경우에는 다시 초기화하지 않음.
-        if(_isDataInitialized)
+        if(IsDataInitialized)
         {
             Debug.Log("DataManager is already initialized.");
             return;
@@ -71,7 +71,7 @@ public class DataManager
         if (loadedCount >= TotalLoadCount)
         {
             // 완료된 경우 GameManager에 알림
-            _isDataInitialized = true;
+            IsDataInitialized = true;
             OnDataInitialized?.Invoke();
         }
     }

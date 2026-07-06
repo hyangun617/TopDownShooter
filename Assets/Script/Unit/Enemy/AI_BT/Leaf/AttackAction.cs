@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public class AttackAction : LeafNode
@@ -17,14 +18,23 @@ public class AttackAction : LeafNode
         {
             return NodeState.Failure;
         }
+        if(!blackboard.TryGetValue<Transform>(BlackboardKeys.Target, out Transform target))
+        {
+            return NodeState.Failure;
+        }
 
         // 객체의 이동을 중지
         self.StopMoving();
 
+        // 타겟에게로의 방향 계산
+        Vector3 dir = target.position - self.transform.position;
+        dir.y = 0f;
+        dir.Normalize();
+
         if(attackStartTime < 0f)
         {
             // 객체의 공격 함수 실행.
-            self.RangeAttack();
+            self.PlayAttack(dir);
             attackStartTime = Time.time;
         }
 

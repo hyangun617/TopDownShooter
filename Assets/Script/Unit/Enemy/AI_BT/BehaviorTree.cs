@@ -50,8 +50,8 @@ public class BehaviorTree
     }
 
     // BT 실행 및 정지 메서드
-    public void PlayBT() => IsPaused = false;
-    public void PauseBT()
+    public void Play() => IsPaused = false;
+    public void Pause()
     {
         if (IsPaused) return;
 

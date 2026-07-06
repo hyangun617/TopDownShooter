@@ -5,7 +5,7 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
 {
     private Coroutine detectCoroutine;
     private static readonly WaitForSeconds detecInterval = new WaitForSeconds(1f);
-    public EnemyIdleState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine) : base(enemy, stateMachine)
+    public EnemyIdleState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
     }
@@ -16,6 +16,7 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
         MyGame.Utility.Debugger.Log($"{enemy.name} entered Idle State.");
 
         enemy.bcolor = Color.green;
+        enemy.StopMoving();
 
         // 코루틴 실행
         detectCoroutine = enemy.StartCoroutine(DetectPlayerCoroutine());
@@ -53,7 +54,7 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
                 if(!DetectObstacles(hits[0].transform))
                 {
                     // 플레이어 감지 됨 -> 타겟 설정.
-                    enemy.SetTarget(hits[0].transform);
+                    context.Target = hits[0].transform;
                     stateMachine.ChangeState<EnemyChaseState>();
                     yield break;        // 코루틴 종료.
                 }

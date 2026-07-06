@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem; // 인풋 시스템을 사용하기 위해 네임 스페이스를 읽어옴.
 
 public class PlayerController : MonoBehaviour
 {
+    // 플레이어 객체
+    private Player player;
     private Rigidbody rb;              
     private Vector2 moveInput;      
 
-    // 이동 속도
-    [SerializeField] private float moveSpeed = 10f;
-    
-
     private void Awake()
     {
-        // GameObject에 등록된 Rigidbody 컴포넌트를 받아옴.
+        // GameObject에 등록된 컴포넌트를 받아옴.
         rb = GetComponent<Rigidbody>();
+        player = GetComponent<Player>();
     }
 
     // 해당 플레이어가 활성화 되었을 때.
@@ -31,7 +29,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // 입력이 활성화 되어 있을 때만 회전.
+        // 컨트롤러가 활성화 되어 있을 때만 회전.
         if (InputManager.Instance != null && InputManager.Instance.IsInputEnabled)
         {
             LookAtMouse();
@@ -43,7 +41,7 @@ public class PlayerController : MonoBehaviour
         // 입력 값에 따라 단위 벡터를 받아옴.
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
-        rb.MovePosition(rb.position + move * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + move * player.MoveSpeed * Time.fixedDeltaTime);
     }
 
     private void LookAtMouse()
