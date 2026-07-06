@@ -6,14 +6,40 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     // 순수 C# 매니저
-    public DataManager Data { get; private set; } = new DataManager();
-    public ScoreManager ScoreMgr { get; private set; } = new ScoreManager();
-    public TimeManager timeMgr { get; private set; } = new TimeManager();
+    public DataManager Data { get; private set; }
+    public ScoreManager ScoreMgr { get; private set; }
+    public TimeManager TimeMgr { get; private set; }
+    public SoundManager Sound { get; private set; }
 
+    // 게임 상태
     public GameState CurrentState { get; private set; }
+
+    // 각종 파라미터
+    [SerializeField] private float bgm_Volume = 1f;
+    [SerializeField] private float sfx_Volume = 1f;
 
     // 상태 변화시 호출하는 이벤트
     public event Action<GameState> OnGameStateChanged;
+
+    public void Init()
+    {
+        // 게임 매니저 초기화.
+        Debug.Log("Game Manager Initialized"); 
+
+        // 하위 매니저 생성 및 초기화.
+        Data = new DataManager();
+        ScoreMgr = new ScoreManager();
+        TimeMgr = new TimeManager();
+        Sound = new SoundManager(this.transform);
+
+        Data.OnDataInitialized += () =>
+        {
+            Debug.Log("Data Manager Initialized");
+        };
+
+        // 각 순수 C# 매니저 초기화
+        Data.Init();
+    }
 
     // 인스턴스 생성 메서드
     public void RegisterAsInstance()
@@ -43,6 +69,12 @@ public class GameManager : MonoBehaviour
     {
         switch(state)
         {
+            case GameState.MainMenu:
+                {
+                    // 메인 메뉴
+                    Time.timeScale = 1f;
+                    break;
+                }
             case GameState.Playing:
                 {
                     // 정상 속도로 게임 진행.
@@ -69,17 +101,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Init()
+#if UNITY_EDITOR
+    private void OnValidate()
     {
-        // 게임 매니저 초기화.
-        Debug.Log("Game Manager Init"); 
-
-        Data.OnDataInitialized += () =>
-        {
-            Debug.Log("Data Manager Initialized");
-        };
-
-        // 각 순수 C# 매니저 초기화
-        Data.Init();
+        Sound.BGMVolume = bgm_Volume;
+        Sound.SfxVolume = sfx_Volume;
     }
+#endif
 }

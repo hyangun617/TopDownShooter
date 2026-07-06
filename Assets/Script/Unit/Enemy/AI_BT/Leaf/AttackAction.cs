@@ -31,10 +31,12 @@ public class AttackAction : LeafNode
         dir.y = 0f;
         dir.Normalize();
 
+        self.transform.rotation = Quaternion.LookRotation(dir);
+
         if(attackStartTime < 0f)
         {
             // 객체의 공격 함수 실행.
-            self.PlayAttack(dir);
+            self.PlayAttack();
             attackStartTime = Time.time;
         }
 

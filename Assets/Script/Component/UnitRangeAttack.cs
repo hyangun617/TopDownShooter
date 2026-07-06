@@ -17,10 +17,11 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
     // 공격 여부
     private bool isAttacking = false;
 
-    public void PlayAttack(Vector3 dir)
+    // SFX
+    [SerializeField] private AudioClip attackSFX;
+
+    public void PlayAttack()
     {
-        // 타겟을 향해 회전
-        transform.rotation = Quaternion.LookRotation(dir);
         // 원거리 공격 메서드
         StartCoroutine(OnRangeAttacking());
         Debug.Log("Range Attack!");

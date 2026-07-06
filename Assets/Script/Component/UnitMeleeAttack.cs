@@ -21,18 +21,18 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
     // 공격 중 여부
     private bool isAttacking = false;
 
+    // SFX
+    [SerializeField] private AudioClip attackSFX;
+
     void Awake()
     {
         targetLayerMask = LayerMask.GetMask("Player");
     }
 
     // 공격 실행 메서드.
-    public void PlayAttack(Vector3 dir)
+    public void PlayAttack()
     {
         MyGame.Utility.Debugger.Log($"{name}'s Attack!");
-
-        // 타겟을 향해 회전
-        transform.rotation = Quaternion.LookRotation(dir);
 
         // 기즈모 박스 그리기
         StartCoroutine(ShowAttackGizmo());

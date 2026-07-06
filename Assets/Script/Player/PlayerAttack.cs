@@ -1,27 +1,29 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class Shooting : MonoBehaviour
+public class PlayerAttack : MonoBehaviour, IAttackable
 {
-    private Player player;
-
     [Header("시각 효과 (Visuals)")]
     [SerializeField] private Transform firePoint;                  // 총구 위치
     [SerializeField] private LineRenderer bulletTrail;             // 궤적을 그릴 렌더러
 
     private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
-    private float fireCooldown = 0f;                                // 다음 발사까지 남은 시간을 추적하는 타이머.
+    
+    // IAttackable
+    public float AttackRange { get; set; }
+    public float AttackDelay { get; set; }
+    public float AttackDamage { get; set; }
+
+    private float attackCooldown = 0f;                              // 공격 쿨다운.
+
     private bool isFiring = false;                                  // 발사 여부.
+
+    // SFX
+    [SerializeField] private AudioClip AttackSFX;
 
     private void Awake()
     {
         attackableLayer = LayerMask.GetMask("Attackable");
-        player = GetComponent<Player>();
-    }
-
-    private void OnEnable()
-    {
-        
     }
 
     void Start()
@@ -37,15 +39,10 @@ public class Shooting : MonoBehaviour
     void Update()
     {
         // 이전 프레임부터 현재 프레임 사이의 수를 이용해 쿨타임 계산.
-        if(fireCooldown >= 0) fireCooldown -= Time.deltaTime;
+        if(attackCooldown >= 0) attackCooldown -= Time.deltaTime;
 
-        if (isFiring && fireCooldown <= 0)  
-            Fire();
-    }
-
-    private void OnDisable()
-    {
-
+        if (isFiring && attackCooldown <= 0)  
+            PlayAttack();
     }
 
     private void OnDestroy()
@@ -68,7 +65,7 @@ public class Shooting : MonoBehaviour
     }
 
 
-    private void Fire()
+    public void PlayAttack()
     {
         // Top-Down 이기 때문에 Y축 값은 무시함. 
         // input Manager에서 마우스의 위치를 받아옴.
@@ -81,12 +78,15 @@ public class Shooting : MonoBehaviour
         // 방향만을 남기기 위함.
         Vector3 direction = (ClickPoint - fixedFirePosition).normalized;
 
+        // 효과음 재생
+        GameManager.Instance.Sound.PlaySfx(AttackSFX);
+
         // 궤적 활성화
         bulletTrail.enabled = true;
         bulletTrail.SetPosition(0, firePoint.transform.position);
 
         // 플레이어의 위치에서 단위 벡터 direction의 방향으로 range 만큼의 사거리로 ray 발사. -> attackableLayer의 레이어만 감지함.
-        if(Physics.Raycast(firePoint.transform.position, direction, out RaycastHit otherHit, player.AttackRange, attackableLayer))
+        if(Physics.Raycast(firePoint.transform.position, direction, out RaycastHit otherHit, AttackRange, attackableLayer))
         {
             Debug.Log($"Hit Object: {otherHit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(otherHit.collider.gameObject.layer)}");
 
@@ -96,12 +96,12 @@ public class Shooting : MonoBehaviour
 
             if(otherHit.collider.TryGetComponent<IDamagable>(out var enemy))
             {
-                enemy.TakeDamage(player.DamagePoint);
+                enemy.TakeDamage(AttackDamage);
             }
         }
         else // 아무도 맞지 않은 경우
         {
-            Vector3 endPoint = fixedFirePosition + direction * player.AttackRange;
+            Vector3 endPoint = fixedFirePosition + direction * AttackRange;
             bulletTrail.SetPosition(1, endPoint);
 
             Debug.Log($"{firePoint.transform.position}, {endPoint} FIRE!");
@@ -115,7 +115,7 @@ public class Shooting : MonoBehaviour
         // 디버그 전용, 씬에서만 해당 라인이 보임.
         Debug.DrawLine(firePoint.transform.position, bulletTrail.GetPosition(1), Color.red, 0.5f);
         
-        fireCooldown = player.FireRate;
+        attackCooldown = AttackDelay;
     }
 
     private IEnumerator FlashBulletTrail()

@@ -29,8 +29,8 @@ public class BootStrapper : MonoBehaviour
         {
             Debug.Log("Input Manager Initialized");
         };
+        
         inputManager.Init();
-
         gameManager.Init();
     }
 }
