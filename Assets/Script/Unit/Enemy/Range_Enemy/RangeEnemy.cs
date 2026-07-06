@@ -63,7 +63,7 @@ public class RangeEnemy : Enemy
         behaviorTree.SetDelay(0.1f);
     }
 
-    public void PlayAttack(Vector3 dir) => rangeAttack.PlayAttack(dir);
+    public void PlayAttack() => rangeAttack.PlayAttack();
 
     // 트리 구조 BehaviorTree
     private INode BuildTree(Blackboard blackboard)

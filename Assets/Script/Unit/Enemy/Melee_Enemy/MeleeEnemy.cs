@@ -47,7 +47,7 @@ public class MeleeEnemy : Enemy
         stateMachine.ChangeState<EnemyDeadState>();
     }
 
-    public void PlayAttack(Vector3 dir) => meleeAttack.PlayAttack(dir);
+    public void PlayAttack() => meleeAttack.PlayAttack();
 
     void Update()
     {
