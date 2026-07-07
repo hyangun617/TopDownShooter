@@ -8,7 +8,7 @@ public class SoundManager
     private readonly Queue<AudioSource> sfxPool = new();
     private readonly Transform sfxRoot;
 
-    public float SfxVolume = 1f;
+    public float SFXVolume = 1f;
     public float BGMVolume = 1f;
 
     private const int INITIAL_POOL_SIZE = 8;
@@ -65,7 +65,7 @@ public class SoundManager
         }
 
         source.clip = clip;
-        source.volume = SfxVolume;
+        source.volume = SFXVolume;
         source.Play();
 
         // 재생 끝나면 풀로 반환
