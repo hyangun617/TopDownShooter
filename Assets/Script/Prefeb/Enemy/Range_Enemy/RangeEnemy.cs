@@ -15,6 +15,8 @@ public class RangeEnemy : Enemy
         base.Awake();
 
         rangeAttack = GetComponent<UnitRangeAttack>();
+        targetLayerMask = LayerMask.GetMask("Player");
+        obstacleLayerMask = LayerMask.GetMask("Environment", "Ground");
     }
 
     protected override void Start()
@@ -47,6 +49,7 @@ public class RangeEnemy : Enemy
         rangeAttack.AttackDamage = Stat.AttackPoint;
         rangeAttack.AttackDelay = Stat.AttackDelay;
         rangeAttack.AttackRange = Stat.AttackRange;
+        rangeAttack.targetLayerMask = targetLayerMask;
     }
 
     private void SetupBehaviorTree()

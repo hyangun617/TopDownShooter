@@ -15,7 +15,7 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
     public Transform firePoint;
 
     // 공격 대상 레이어 마스크
-    private LayerMask targetLayerMask;
+    public LayerMask targetLayerMask;
 
     // 탄환 프리펩
     private GameObject bulletPrefeb;
@@ -39,15 +39,18 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
             }
         };
 
-        bulletData.damage = AttackDamage;
-        bulletData.range = AttackRange;
-        bulletData.speed = AttackSpeed;
-        bulletData.Piercing = false;
+        bulletData = ScriptableObject.CreateInstance<BulletData>();
     }
 
     public void PlayAttack()
     {
         if(!prefabLoaded) return;
+
+        // 탄환 정보 초기화
+        bulletData.damage = AttackDamage;
+        bulletData.range = AttackRange;
+        bulletData.speed = AttackSpeed;
+        bulletData.Piercing = false;
 
         // 원거리 공격 메서드
         StartCoroutine(OnRangeAttacking());

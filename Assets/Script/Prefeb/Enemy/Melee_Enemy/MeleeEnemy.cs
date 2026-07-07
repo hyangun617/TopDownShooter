@@ -14,6 +14,8 @@ public class MeleeEnemy : Enemy
         base.Awake();
         // 공격 컴포넌트 
         meleeAttack = GetComponent<UnitMeleeAtack>();
+        targetLayerMask = LayerMask.GetMask("Player");
+        obstacleLayerMask = LayerMask.GetMask("Environment", "Ground");
     }
 
     protected override void SetupEnemy()
