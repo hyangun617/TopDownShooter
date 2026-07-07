@@ -31,11 +31,10 @@ public class GameManager : MonoBehaviour
         ScoreMgr = new ScoreManager();
         TimeMgr = new TimeManager();
         Sound = new SoundManager(this.transform);
+        Sound.BGMVolume = bgm_Volume;
+        Sound.SFXVolume = sfx_Volume;
 
-        Data.OnDataInitialized += () =>
-        {
-            Debug.Log("Data Manager Initialized");
-        };
+        Data.OnDataInitialized += () => { Debug.Log("Data Manager Initialized"); };
 
         // 각 순수 C# 매니저 초기화
         Data.Init();
@@ -104,8 +103,9 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
     private void OnValidate()
     {
-        Sound.BGMVolume = bgm_Volume;
-        Sound.SfxVolume = sfx_Volume;
+        // 값 범위 검증
+        bgm_Volume = Mathf.Clamp01(bgm_Volume);
+        sfx_Volume = Mathf.Clamp01(sfx_Volume);
     }
 #endif
 }
