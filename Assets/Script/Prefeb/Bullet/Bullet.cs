@@ -35,8 +35,7 @@ public class Bullet : MonoBehaviour
             }   
 
             ResetBullet();
-            // 이후 풀로 반환.
-            
+            // 이후 풀로 반환.            
 
             return;
         }
@@ -74,5 +73,7 @@ public class Bullet : MonoBehaviour
         lifeTime = 0f;
         isActivated = false;
         gameObject.SetActive(false);
+
+        // 이후 풀로 반환 로직.
     }
 }
