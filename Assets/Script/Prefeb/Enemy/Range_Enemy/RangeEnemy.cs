@@ -16,19 +16,20 @@ public class RangeEnemy : Enemy
 
         rangeAttack = GetComponent<UnitRangeAttack>();
         targetLayerMask = LayerMask.GetMask("Player");
-        obstacleLayerMask = LayerMask.GetMask("Environment", "Ground");
+        obstacleLayerMask = LayerMask.GetMask("Environment");
     }
 
     protected override void Start()
     {
         base.Start();
         RunWhenDataReady(SetupBehaviorTree);
-        health.OnDeath += HandleDeath;
     }
 
     private void HandleDeath()
     {
+        Debug.Log($"{name} is Dead!");
         behaviorTree?.Pause();
+        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -37,7 +38,7 @@ public class RangeEnemy : Enemy
         if (behaviorTree != null && !behaviorTree.IsPaused)
         {
             // BT의 정지 확인 후 실행.
-            behaviorTree.Tick();    
+            behaviorTree.Tick();   
         }
     }
 
@@ -64,6 +65,8 @@ public class RangeEnemy : Enemy
         INode root = BuildTree(blackboard);
         behaviorTree = new BehaviorTree(root, blackboard);
         behaviorTree.SetDelay(0.1f);
+
+        health.OnDeath += HandleDeath;
     }
 
     public void PlayAttack() => rangeAttack.PlayAttack();

@@ -30,9 +30,9 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
 
     void Start()
     {
-        Addressables.InstantiateAsync("Bullet").Completed += (handle) =>
+        Addressables.LoadAssetAsync<GameObject>("Bullet").Completed += (handle) =>
         {
-            if(handle.Status == AsyncOperationStatus.Succeeded)
+            if (handle.Status == AsyncOperationStatus.Succeeded)
             {
                 bulletPrefeb = handle.Result;
                 prefabLoaded = true;

@@ -33,7 +33,7 @@ public class BehaviorTreeBuilder
             if(decorator.GetChild() != null)
             {
                 // 이미 자식이 있으므로 오류 발생.
-                throw new InvalidOperationException("DecoratorNode는 단 하나의 자식 노드만 갖을 수 있습니다.");
+                throw new InvalidOperationException("DecoratorNode는 단 하나의 자식 노드만 가질 수 있습니다.");
             }
             decorator.SetChild(node);
         }

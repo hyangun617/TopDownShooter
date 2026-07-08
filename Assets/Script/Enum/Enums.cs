@@ -5,3 +5,10 @@
     Boss
 }
 
+public enum WeaponType
+{
+    HandGun,
+    Rifle,
+    Sniper,
+    Bazzuka
+}

@@ -20,7 +20,7 @@ public class ChaseAction : LeafNode
         }
 
         // 사거리 내라면 종료
-        float dist = Vector3.Distance(self.transform.position, target.position);
+        float dist = Vector3.Distance(self.Position, target.position);
         if(dist <= self.AttackRange)
         {
             return NodeState.Success;

@@ -33,6 +33,7 @@ public abstract class Enemy : MonoBehaviour
     public float AttackDelay => Stat.AttackDelay;
     public float DetectRange => Stat.DetectRange;
     public float MoveSpeed => Stat.MovementSpeed;
+    public Vector3 Position => controller.Position;
 
     // 디버깅용 멤버
     public Color bcolor = Color.green;
@@ -88,6 +89,9 @@ public abstract class Enemy : MonoBehaviour
     // Enemy AI를 위한 위임 메서드
     public void MoveToward(Vector3 targetPosition, float speed) => controller.MoveToward(targetPosition, speed);
     public void StopMoving() => controller.StopMoving();
+    public void TakeDamage(float damage) => health.TakeDamage(damage);
+
+    public void Rotate(Vector3 dir) => controller.Rotate(dir);    
 
     // 디버깅용 범위 표시
 #if UNITY_EDITOR

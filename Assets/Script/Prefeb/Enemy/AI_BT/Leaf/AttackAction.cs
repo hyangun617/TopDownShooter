@@ -27,11 +27,11 @@ public class AttackAction : LeafNode
         self.StopMoving();
 
         // 타겟에게로의 방향 계산
-        Vector3 dir = target.position - self.transform.position;
+        Vector3 dir = target.position - self.Position;
         dir.y = 0f;
         dir.Normalize();
 
-        self.transform.rotation = Quaternion.LookRotation(dir);
+        self.Rotate(dir);
 
         if(attackStartTime < 0f)
         {

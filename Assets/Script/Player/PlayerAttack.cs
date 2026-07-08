@@ -19,7 +19,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     private bool isFiring = false;                                  // 발사 여부.
 
     // SFX
-    [SerializeField] private AudioClip AttackSFX;
+    private AudioClip AttackSFX;
 
     private void Awake()
     {
@@ -64,6 +64,15 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
     }
 
+    public void SetFirePoint(Transform newFirePoint) => firePoint = newFirePoint;
+
+    public void SetWeaponData(WeaponData weaponData)
+    {
+        AttackRange = weaponData.range;
+        AttackDelay = weaponData.fireRate;
+        AttackDamage = weaponData.damage;
+        AttackSFX = weaponData.fireSFX;
+    }
 
     public void PlayAttack()
     {
@@ -101,7 +110,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
         else // 아무도 맞지 않은 경우
         {
-            Vector3 endPoint = fixedFirePosition + direction * AttackRange;
+            Vector3 endPoint = firePoint.transform.position + direction * AttackRange;
             bulletTrail.SetPosition(1, endPoint);
 
             Debug.Log($"{firePoint.transform.position}, {endPoint} FIRE!");
