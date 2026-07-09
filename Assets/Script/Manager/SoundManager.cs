@@ -43,12 +43,12 @@ public class SoundManager
         source.playOnAwake = false;
         source.rolloffMode = AudioRolloffMode.Linear;
         source.minDistance = 2f;        // 이 거리 안에선 최대 볼륨
-        source.maxDistance = 20f;       // 이 거리 밖에선 볼륨 0
+        source.maxDistance = 40f;       // 이 거리 밖에선 볼륨 0
         return source;
     }
 
     // 효과음 재생
-    public void PlaySfx(AudioClip clip, Vector3? worldPosition = null)
+    public void PlaySfx(AudioClip clip, Vector3? worldPosition = null, float pitch = 1f)
     {
         if (clip == null) return;
 
@@ -66,6 +66,7 @@ public class SoundManager
 
         source.clip = clip;
         source.volume = SFXVolume;
+        source.pitch = pitch;
         source.Play();
 
         // 재생 끝나면 풀로 반환

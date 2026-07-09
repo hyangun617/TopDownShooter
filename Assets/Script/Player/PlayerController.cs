@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         InputManager.Instance.OnMove += onMove;
+        InputManager.Instance.OnPressed_R += OnReLoad;
     }
 
     // Update is called once per frame
@@ -60,6 +61,13 @@ public class PlayerController : MonoBehaviour
             // 마우스를 향해 회전.
             rb.rotation = Quaternion.LookRotation(Direction);
         }
+    }
+
+    private void OnReLoad()
+    {
+        // 리로드 메서드
+        playerAnimController.OnReload();
+        
     }
 
     private void OnDestroy()

@@ -1190,7 +1190,23 @@ PrefabInstance:
     - target: {fileID: 5733863377842846174, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
       propertyPath: currentWeapon
       value: 
-      objectReference: {fileID: 11400000, guid: 8572e9fc9fac1df47817ffed3f41384f, type: 2}
+      objectReference: {fileID: 11400000, guid: ff48a48920ae4964b93da74a7571c416, type: 2}
+    - target: {fileID: 8028805483547377467, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
+      propertyPath: m_Positions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8028805483547377467, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
+      propertyPath: m_Positions.Array.data[1].z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8028805483547377467, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].time
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8028805483547377467, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
+      propertyPath: m_Parameters.widthCurve.m_Curve.Array.data[0].value
+      value: 0.53157806
+      objectReference: {fileID: 0}
     - target: {fileID: 8784326050188285798, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
       propertyPath: m_IsTrigger
       value: 1

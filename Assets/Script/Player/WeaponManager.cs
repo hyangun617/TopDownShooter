@@ -8,6 +8,8 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private PlayerAttack playerAttack;
     [SerializeField] private Transform weaponSocket;
 
+    public WeaponData WeaponData => currentWeapon;
+
     private GameObject currentWeaponInstance;
 
     void Start()

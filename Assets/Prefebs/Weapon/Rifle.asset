@@ -17,13 +17,13 @@ MonoBehaviour:
   upperBodyOverride: {fileID: 22100000, guid: 7a2cf308d2b048e49acc6805649c7a93, type: 2}
   weaponPrefab: {fileID: 4441809679580037908, guid: 92c89ccd23e13f1409b31234e929d268, type: 3}
   gripPositionOffset: {x: 0.001, y: 0.005, z: -0.002}
-  gripRotationOffset: {x: -75, y: 90, z: -180}
+  gripRotationOffset: {x: -103, y: -90, z: 0}
   gripScaleOffset: {x: 0.8, y: 0.8, z: 0.8}
   fireSFX: {fileID: 0}
   reloadSFX: {fileID: 0}
   equipSFX: {fileID: 0}
   damage: 15
-  fireRate: 0.5
+  fireRate: 0.2
   range: 30
   Piercing: 0
   magazineSize: 30

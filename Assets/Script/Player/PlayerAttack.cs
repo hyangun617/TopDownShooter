@@ -8,6 +8,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     [SerializeField] private LineRenderer bulletTrail;             // 궤적을 그릴 렌더러
 
     private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
+    private PlayerAnimController animController;
     
     // IAttackable
     public float AttackRange { get; set; }
@@ -24,6 +25,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     private void Awake()
     {
         attackableLayer = LayerMask.GetMask("Attackable");
+        animController = GetComponent<PlayerAnimController>();
     }
 
     void Start()
@@ -41,8 +43,12 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         // 이전 프레임부터 현재 프레임 사이의 수를 이용해 쿨타임 계산.
         if(attackCooldown >= 0) attackCooldown -= Time.deltaTime;
 
-        if (isFiring && attackCooldown <= 0)  
+        if (isFiring && attackCooldown <= 0)
+        {
             PlayAttack();
+            animController.OnShoot();   
+        }  
+            
     }
 
     private void OnDestroy()

@@ -23,6 +23,7 @@ public class InputManager : MonoBehaviour
     public event Action OnInputInitialized;                         // InputManager 초기화 완료 이벤트
     public event Action<FireEventArgs> OnFire;                      // 발사 입력값을 전달할 이벤트
     public event Action<Vector2> OnMove;                            // 이동 입력값을 전달할 이벤트
+    public event Action OnPressed_R;                                // R 키를 누르면 전달할 이벤트
 
     // 참조 세팅
     private void Awake()
@@ -62,6 +63,7 @@ public class InputManager : MonoBehaviour
         inputSystem.Player.Fire.canceled += OnFireCanceled;
         inputSystem.Player.Move.performed += OnPlayerMovement;
         inputSystem.Player.Move.canceled += OnPlayerMovement;
+        inputSystem.Player.Reload.performed += OnPressedRKey;
     }
 
     private void Update()
@@ -83,6 +85,7 @@ public class InputManager : MonoBehaviour
         inputSystem.Player.Fire.canceled -= OnFireCanceled;
         inputSystem.Player.Move.performed -= OnPlayerMovement;
         inputSystem.Player.Move.canceled -= OnPlayerMovement;
+        inputSystem.Player.Reload.performed -= OnPressedRKey;
         inputSystem.Player.Disable();
     }
 
@@ -137,5 +140,10 @@ public class InputManager : MonoBehaviour
     private void OnPlayerMovement(InputAction.CallbackContext ctx)
     {
         OnMove?.Invoke(ctx.ReadValue<Vector2>());
+    }
+
+    private void OnPressedRKey(InputAction.CallbackContext ctx)
+    {
+        OnPressed_R?.Invoke();
     }
 }
