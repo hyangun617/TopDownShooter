@@ -5,6 +5,7 @@ public class UnitController : MonoBehaviour
     private Rigidbody rb;
     private Vector3 pendingDirection;
     private float pendingSpeed;
+    public Vector3 Position => rb.position;
 
     private void Awake()
     {
@@ -21,11 +22,12 @@ public class UnitController : MonoBehaviour
 
     public void MoveToward(Vector3 targetPosition, float speed)
     {
-        pendingDirection = (targetPosition - transform.position).normalized;
+        pendingDirection = (targetPosition - rb.position).normalized;
         pendingDirection.y = 0f; // 수평 이동
 
         // 타겟을 향해 회전
-        transform.rotation = Quaternion.LookRotation(pendingDirection);
+        if(pendingDirection != Vector3.zero)
+            rb.rotation = Quaternion.LookRotation(pendingDirection);
 
         pendingSpeed = speed; 
     }
@@ -33,5 +35,11 @@ public class UnitController : MonoBehaviour
     public void StopMoving()
     {
         pendingDirection = Vector3.zero;
+    }
+
+    public void Rotate(Vector3 direction)
+    {   
+        if(direction != Vector3.zero)
+        rb.rotation = Quaternion.LookRotation(direction);
     }
 }

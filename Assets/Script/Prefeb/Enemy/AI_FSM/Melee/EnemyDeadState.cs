@@ -11,6 +11,7 @@ public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
         MyGame.Utility.Debugger.Log($"{enemy.name} entered Dead State.");
 
         enemy.StopMoving();
+        enemy.gameObject.SetActive(false);
     }
 
     public override void Update()

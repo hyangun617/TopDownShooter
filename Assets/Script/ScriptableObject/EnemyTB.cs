@@ -6,10 +6,23 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "EnemyTB", menuName = "Scriptable Objects/EnemyTB")]
 public class EnemyTB : ScriptableObject
 {
+    [Header("Stat")]
     public List<EnemyData> enemyList = new List<EnemyData>();
 
     // 캐싱된 리스트
     private Dictionary<int, EnemyData> _table;
+
+    // 적 프리펩.
+    [Header("Model")]
+    public GameObject EnemyPrefab;
+
+    [Header("Animation")]
+    public Animator animator;
+
+    [Header("SFX")]
+    public AudioClip attackSFX;
+    public AudioClip hitSFX;
+    public AudioClip deathSFX;
 
     public void Init()
     {

@@ -31,6 +31,7 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
         currentHp -= value;
         OnDamaged?.Invoke(currentHp);
+        Debug.Log($"{currentHp}");
 
         if(currentHp <= 0)
         {

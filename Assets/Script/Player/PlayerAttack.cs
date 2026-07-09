@@ -8,6 +8,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     [SerializeField] private LineRenderer bulletTrail;             // 궤적을 그릴 렌더러
 
     private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
+    private PlayerAnimController animController;
     
     // IAttackable
     public float AttackRange { get; set; }
@@ -19,11 +20,12 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     private bool isFiring = false;                                  // 발사 여부.
 
     // SFX
-    [SerializeField] private AudioClip AttackSFX;
+    private AudioClip AttackSFX;
 
     private void Awake()
     {
         attackableLayer = LayerMask.GetMask("Attackable");
+        animController = GetComponent<PlayerAnimController>();
     }
 
     void Start()
@@ -41,8 +43,12 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         // 이전 프레임부터 현재 프레임 사이의 수를 이용해 쿨타임 계산.
         if(attackCooldown >= 0) attackCooldown -= Time.deltaTime;
 
-        if (isFiring && attackCooldown <= 0)  
+        if (isFiring && attackCooldown <= 0)
+        {
             PlayAttack();
+            animController.OnShoot();   
+        }  
+            
     }
 
     private void OnDestroy()
@@ -64,6 +70,15 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
     }
 
+    public void SetFirePoint(Transform newFirePoint) => firePoint = newFirePoint;
+
+    public void SetWeaponData(WeaponData weaponData)
+    {
+        AttackRange = weaponData.range;
+        AttackDelay = weaponData.fireRate;
+        AttackDamage = weaponData.damage;
+        AttackSFX = weaponData.fireSFX;
+    }
 
     public void PlayAttack()
     {
@@ -101,7 +116,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
         else // 아무도 맞지 않은 경우
         {
-            Vector3 endPoint = fixedFirePosition + direction * AttackRange;
+            Vector3 endPoint = firePoint.transform.position + direction * AttackRange;
             bulletTrail.SetPosition(1, endPoint);
 
             Debug.Log($"{firePoint.transform.position}, {endPoint} FIRE!");
