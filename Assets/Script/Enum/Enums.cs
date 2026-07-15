@@ -12,3 +12,13 @@ public enum WeaponType
     Sniper,
     Bazzuka
 }
+
+public enum UnitAnimState
+{
+    Idle,
+    Walking,
+    Running,
+    Attacking,
+    Damaged,
+    Deaded
+}

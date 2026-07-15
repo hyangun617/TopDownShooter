@@ -15,6 +15,9 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
         // 상태 진입 시 로직
         MyGame.Utility.Debugger.Log($"{enemy.name} entered Attack State.");
 
+        // 애니메이션 상태 변경
+        enemy.SetAnimState(UnitAnimState.Attacking);
+
         // 진입 시 공격 딜레이
         attackTimer = 0f;
     }
@@ -60,7 +63,8 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
             return;
         }
 
-        enemy.PlayAttack();
+        Debug.Log($"{enemy.name} is Attacking!");
+        enemy.AttackTrigger();  // 공격 애니메이션 트리거
         attackTimer = enemy.AttackDelay;
     }
 

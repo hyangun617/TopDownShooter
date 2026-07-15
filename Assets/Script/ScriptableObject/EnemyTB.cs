@@ -12,18 +12,6 @@ public class EnemyTB : ScriptableObject
     // 캐싱된 리스트
     private Dictionary<int, EnemyData> _table;
 
-    // 적 프리펩.
-    [Header("Model")]
-    public GameObject EnemyPrefab;
-
-    [Header("Animation")]
-    public Animator animator;
-
-    [Header("SFX")]
-    public AudioClip attackSFX;
-    public AudioClip hitSFX;
-    public AudioClip deathSFX;
-
     public void Init()
     {
         // 리스트의 데이터를 Dictionary로 변환하여 캐싱

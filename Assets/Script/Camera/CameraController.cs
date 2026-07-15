@@ -19,9 +19,9 @@ public class CameraController : MonoBehaviour
         player = GameObject.FindWithTag("Player");
 
         // 회전 초기값 지정.
-        Rotation = Quaternion.Euler(60f, 0f, 0f);
+        Rotation = Quaternion.Euler(90f, 0f, 0f);
         // 오프셋 초기값 지정
-        offset = new Vector3(0f, 20f, -10f);        
+        offset = new Vector3(0f, 20f, 0f);        
     }
 
     private void LateUpdate()

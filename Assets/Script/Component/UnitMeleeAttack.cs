@@ -9,8 +9,12 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
     public float AttackDelay { get; set; }
 
     // 공격 좌우 폭, 높이 
+    [Header("Range")]
     [SerializeField] private float attackWidth = 1f;
     [SerializeField] private float attackHeight = 1f;
+
+    // 공격 SFX
+    private AudioClip attackSFX;
 
     // 공격 대상 레이어 마스크
     private LayerMask targetLayerMask; 
@@ -20,9 +24,6 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
 
     // 공격 중 여부
     private bool isAttacking = false;
-
-    // SFX
-    [SerializeField] private AudioClip attackSFX;
 
     void Awake()
     {
@@ -37,9 +38,15 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
         // 기즈모 박스 그리기
         StartCoroutine(ShowAttackGizmo());
 
+        // 효과음 실행
+        GameManager.Instance.Sound.PlaySfx(attackSFX);
+
         // 실제 데미지 판정.
         CheckMeleeHit();
     }
+
+    // 공격 SFX 설정 메서드
+    public void SetAttackSFX(AudioClip audioClip) => attackSFX = audioClip;
 
     // 공격 판정에 쓸 박스 정보를 계산하는 공용 함수.
     private void GetAttackBox(out Vector3 center, out Quaternion rotation, out Vector3 halfExtents)
@@ -54,7 +61,7 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
     {
         GetAttackBox(out Vector3 center, out Quaternion rotation, out Vector3 halfExtents);
         
-         int count = Physics.OverlapBoxNonAlloc(center, halfExtents, result, rotation, targetLayerMask);
+        int count = Physics.OverlapBoxNonAlloc(center, halfExtents, result, rotation, targetLayerMask);
         for (int i = 0; i < count; i++)
         {
             if(result[i].TryGetComponent<IDamagable>(out var damagable))
