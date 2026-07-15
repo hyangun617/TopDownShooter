@@ -10,6 +10,7 @@ public abstract class Enemy : MonoBehaviour
     // 유닛 컴포넌트
     protected UnitHealth health;
     protected UnitController controller;
+    protected UnitAnimController animController;
 
     // 데이터 값을 지정할 Id;
     [Header("Read Stat Data Table Id")]
@@ -24,6 +25,11 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected LayerMask targetLayerMask;
     [SerializeField] protected LayerMask obstacleLayerMask;
 
+    [Header("SFX")]
+    [SerializeField] protected AudioClip attackSFX;
+    [SerializeField] protected AudioClip damageSFX;
+    [SerializeField] protected AudioClip deathSFX;
+
     // 외부 접근을 위한 프로퍼티
     // BT, FSM 등에서 사용함.
     public LayerMask TargetLayerMask => targetLayerMask;
@@ -35,7 +41,12 @@ public abstract class Enemy : MonoBehaviour
     public float MoveSpeed => Stat.MovementSpeed;
     public Vector3 Position => controller.Position;
 
+    public AudioClip AttackSFX => attackSFX;
+    public AudioClip DamageSFX => damageSFX;
+    public AudioClip DeathSFX => deathSFX;
+
     // 디버깅용 멤버
+    [Header("Debug")]
     public Color bcolor = Color.green;
 
     // 데이터 로드를 위한 추상 메서드
@@ -45,6 +56,7 @@ public abstract class Enemy : MonoBehaviour
     {
         health = GetComponent<UnitHealth>();
         controller = GetComponent<UnitController>();
+        animController = GetComponent<UnitAnimController>();
 
         // 레이어 마스크 미할당 시 폴백.
         if(targetLayerMask.value == 0)
@@ -83,7 +95,9 @@ public abstract class Enemy : MonoBehaviour
         LoadEnemyData(unitId);
 
         // 컴포넌트들 초기화 로직.
-        health.Initialize(Stat.MaxHp);        
+        health.Initialize(Stat.MaxHp);
+        health.SetDamageSFX(damageSFX);
+        health.SetDeathSFX(deathSFX);        
     }
 
     // Enemy AI를 위한 위임 메서드
@@ -92,6 +106,10 @@ public abstract class Enemy : MonoBehaviour
     public void TakeDamage(float damage) => health.TakeDamage(damage);
 
     public void Rotate(Vector3 dir) => controller.Rotate(dir);    
+    
+    public void SetAnimState(UnitAnimState state) => animController.SetAnimState(state);
+    public void AttackTrigger() => animController.AttackTrigger();
+    public void DeathTrigger() => animController.DeathTrigger();
 
     // 디버깅용 범위 표시
 #if UNITY_EDITOR

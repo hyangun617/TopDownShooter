@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.SocialPlatforms;
 
+[RequireComponent(typeof(PlayerAnimController))]
 public class PlayerController : MonoBehaviour
 {
     // 플레이어 객체

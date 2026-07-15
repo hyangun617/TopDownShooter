@@ -14,20 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyTB
   enemyList:
   - _id: 0
-    _maxHp: 10
+    _maxHp: 50
     _attackPoint: 5
     _defensePoint: 5
     _movementSpeed: 5
-    _attackDelay: 5
-    _attackRange: 5
+    _attackDelay: 3
+    _attackRange: 1
     _detectRange: 20
     _enemyType: 0
   - _id: 1
-    _maxHp: 20
+    _maxHp: 100
     _attackPoint: 7
     _defensePoint: 7
     _movementSpeed: 5
-    _attackDelay: 5
-    _attackRange: 5
+    _attackDelay: 3
+    _attackRange: 1
     _detectRange: 20
     _enemyType: 0
+  EnemyPrefab: {fileID: 0}
+  animator: {fileID: 0}
+  attackSFX: {fileID: 0}
+  hitSFX: {fileID: 0}
+  deathSFX: {fileID: 0}

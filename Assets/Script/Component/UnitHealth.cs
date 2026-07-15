@@ -14,6 +14,13 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
     private bool isDead = false;
 
+    // SFX
+    private AudioClip damagedSFX;
+    private AudioClip deathSFX;
+
+    public void SetDamageSFX(AudioClip damagedSFX) => this.damagedSFX = damagedSFX;
+    public void SetDeathSFX(AudioClip deathSFX) => this.deathSFX = deathSFX;
+
     public void Initialize(float maxHp)
     {
         this.maxHp = maxHp;
@@ -30,12 +37,20 @@ public class UnitHealth : MonoBehaviour, IDamagable
         if (isDead) return;         // 중복 사망 처리 방지
 
         currentHp -= value;
+        // 데미지 효과음 출력.
+        GameManager.Instance.Sound.PlaySfx(damagedSFX, transform.position);
+
+        // 이벤트 호출.
         OnDamaged?.Invoke(currentHp);
         Debug.Log($"{currentHp}");
 
         if(currentHp <= 0)
         {
             isDead = true;
+            // 죽음 효과음 출력
+            GameManager.Instance.Sound.PlaySfx(deathSFX, transform.position);
+
+            // 죽음 이벤트 호출
             OnDeath?.Invoke();      // 사망 이벤트 발생.
         }
     }
