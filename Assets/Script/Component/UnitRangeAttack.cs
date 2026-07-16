@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections.Generic;
 
 public class UnitRangeAttack : MonoBehaviour, IAttackable
 {
@@ -24,27 +23,30 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
 
     // 공격 여부
     private bool isAttacking = false;
+    private float isCooldown;
 
     // SFX
-    [SerializeField] private AudioClip attackSFX;
+    private List<AudioClip> attackSFX;
 
-    void Start()
+    public void Initialize()
     {
-        Addressables.LoadAssetAsync<GameObject>("Bullet").Completed += (handle) =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                bulletPrefeb = handle.Result;
-                prefabLoaded = true;
-            }
-        };
-
         bulletData = ScriptableObject.CreateInstance<BulletData>();
+
+        bulletPrefeb = GameManager.Instance.DataMgr.bulletPrefab;
+        prefabLoaded = bulletPrefeb != null;
+
+        isCooldown = AttackDelay;
+    }
+
+    void Update()
+    {
+        if(isCooldown >= 0) isCooldown -= Time.deltaTime;
     }
 
     public void PlayAttack()
     {
         if(!prefabLoaded) return;
+        if(isCooldown >= 0) return;
 
         // 탄환 정보 초기화
         bulletData.damage = AttackDamage;
@@ -55,15 +57,20 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
         // 원거리 공격 메서드
         StartCoroutine(OnRangeAttacking());
         Debug.Log("Range Attack!");
-
-        Bullet spawnedBullet = Instantiate<Bullet>(bulletPrefeb.GetComponent<Bullet>(), firePoint.position, firePoint.rotation);
-        spawnedBullet.gameObject.SetActive(false);
         
         // 발사 방향
         Vector3 dir = transform.forward.normalized; 
 
-        // 발사.
-        spawnedBullet.ShootBullet(bulletData, firePoint.position, dir, targetLayerMask);           
+        GameObject bulletObj = GameManager.Instance.PoolMgr.Get(bulletPrefeb);
+
+        bulletObj.transform.SetPositionAndRotation(firePoint.position, firePoint.rotation);
+        Debug.Log($"Bullet Position is : {firePoint.position}");
+
+        if(bulletObj.TryGetComponent<Bullet>(out var spawnedBullet))
+        {
+            spawnedBullet.ShootBullet(bulletData, firePoint.position, dir, targetLayerMask);
+            isCooldown = AttackDelay;   
+        }  
     }
 
     private IEnumerator OnRangeAttacking()

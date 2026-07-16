@@ -26,4 +26,5 @@ public class WeaponData : ScriptableObject
     public float range;
     public bool Piercing;
     public int magazineSize;
+    public float reloadTime;
 }

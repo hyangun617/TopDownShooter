@@ -1,16 +1,24 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-public abstract class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour, IPoolable
 {
     // 유닛 컴포넌트
     protected UnitHealth health;
     protected UnitController controller;
     protected UnitAnimController animController;
+
+    // 자신의 풀 프리팹 참조
+    public GameObject SourcePrefab { get; set; }
+    private bool isSetup = false;
+
+    public static event Action<Enemy> OnAnyEnemyDeath;      // 어느 enemy객체의 죽음 알림.
 
     // 데이터 값을 지정할 Id;
     [Header("Read Stat Data Table Id")]
@@ -26,9 +34,9 @@ public abstract class Enemy : MonoBehaviour
     [SerializeField] protected LayerMask obstacleLayerMask;
 
     [Header("SFX")]
-    [SerializeField] protected AudioClip attackSFX;
-    [SerializeField] protected AudioClip damageSFX;
-    [SerializeField] protected AudioClip deathSFX;
+    [SerializeField] protected List<AudioClip> attackSFX;
+    [SerializeField] protected List<AudioClip> damageSFX;
+    [SerializeField] protected List<AudioClip> deathSFX;
 
     // 외부 접근을 위한 프로퍼티
     // BT, FSM 등에서 사용함.
@@ -40,10 +48,6 @@ public abstract class Enemy : MonoBehaviour
     public float DetectRange => Stat.DetectRange;
     public float MoveSpeed => Stat.MovementSpeed;
     public Vector3 Position => controller.Position;
-
-    public AudioClip AttackSFX => attackSFX;
-    public AudioClip DamageSFX => damageSFX;
-    public AudioClip DeathSFX => deathSFX;
 
     // 디버깅용 멤버
     [Header("Debug")]
@@ -65,26 +69,38 @@ public abstract class Enemy : MonoBehaviour
         }
     }
 
-    protected virtual void Start()
+    public virtual void OnSpawn()
     {
+        
+    }
+
+    public virtual void OnDespawn()
+    {
+        
+    }
+
+    public void EnsureSetup()
+    {
+        if(isSetup) return;
         RunWhenDataReady(SetupEnemy);
+        isSetup = true;
     }
 
     // GameManager의 DataManager가 초기화 되었는지 확인하고, 초기화가 완료되었으면 SetupEnemy()를 호출. 
     // 아니면 OnDataInitialized 이벤트에 SetupEnemy()를 등록.
     protected void RunWhenDataReady(Action callback)
     {
-        if(GameManager.Instance.Data.IsDataInitialized)
+        if(GameManager.Instance.DataMgr.IsDataInitialized)
             callback();
         else
         {
             // 콜백 실행 후 자동으로 구독 해제되도록 래핑
             void Handler()
             {
-                GameManager.Instance.Data.OnDataInitialized -= Handler;
+                GameManager.Instance.DataMgr.OnDataInitialized -= Handler;
                 callback();
             }   
-            GameManager.Instance.Data.OnDataInitialized += Handler;
+            GameManager.Instance.DataMgr.OnDataInitialized += Handler;
         }            
     }
 
@@ -98,6 +114,16 @@ public abstract class Enemy : MonoBehaviour
         health.Initialize(Stat.MaxHp);
         health.SetDamageSFX(damageSFX);
         health.SetDeathSFX(deathSFX);        
+    }
+
+    public void NotifyDeath()
+    {
+        OnAnyEnemyDeath?.Invoke(this);
+    }
+
+    public void ReturnToPool()
+    {
+        GameManager.Instance.PoolMgr.Release(gameObject);
     }
 
     // Enemy AI를 위한 위임 메서드

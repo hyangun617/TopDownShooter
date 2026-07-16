@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: GameData_Local
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: GameData_Local
+  m_GUID: 1292521a0a81df2449f80e960c31315f
+  m_SerializeEntries:
+  - m_GUID: 36f67884cb744e94da6efcdef1dca705
+    m_Address: Assets/Prefebs/Enemy/Melee_Enemy_TB.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - GameData
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af2055affc724bf4bb643e34a08991e2
+    m_Address: Assets/Prefebs/Enemy/Range_Enemy_TB.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - GameData
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: eaa7e560f6f08ef4e9b315110fd4452c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: c24a04e8c5289164e8f402f795c63fbf, type: 2}
+    - {fileID: 11400000, guid: ec1d4740ea7e3474a8b972da89b5efc0, type: 2}

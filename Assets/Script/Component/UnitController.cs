@@ -7,6 +7,12 @@ public class UnitController : MonoBehaviour
     private float pendingSpeed;
     public Vector3 Position => rb.position;
 
+    public void Initialize()
+    {
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();

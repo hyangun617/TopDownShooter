@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+using Random = UnityEngine.Random;
 
 public class UnitMeleeAtack : MonoBehaviour, IAttackable
 {
@@ -14,7 +17,7 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
     [SerializeField] private float attackHeight = 1f;
 
     // 공격 SFX
-    private AudioClip attackSFX;
+    private List<AudioClip> attackSFX;
 
     // 공격 대상 레이어 마스크
     private LayerMask targetLayerMask; 
@@ -39,14 +42,14 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
         StartCoroutine(ShowAttackGizmo());
 
         // 효과음 실행
-        GameManager.Instance.Sound.PlaySfx(attackSFX);
+        GameManager.Instance.SoundMgr.PlaySfx(attackSFX[Random.Range(0, attackSFX.Count)], clipVolume: 0.5f, worldPosition: this.transform.position, pitch: 1.5f);
 
         // 실제 데미지 판정.
         CheckMeleeHit();
     }
 
     // 공격 SFX 설정 메서드
-    public void SetAttackSFX(AudioClip audioClip) => attackSFX = audioClip;
+    public void SetAttackSFX(List<AudioClip> audioClip) => attackSFX = audioClip;
 
     // 공격 판정에 쓸 박스 정보를 계산하는 공용 함수.
     private void GetAttackBox(out Vector3 center, out Quaternion rotation, out Vector3 halfExtents)

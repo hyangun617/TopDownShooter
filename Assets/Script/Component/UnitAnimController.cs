@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.Rendering;
 using UnityEngine;
 
 public class UnitAnimController : MonoBehaviour
@@ -8,6 +7,11 @@ public class UnitAnimController : MonoBehaviour
     private static readonly int AttackTriggerHash = Animator.StringToHash("IsAttack");
     private static readonly int DamagedHash = Animator.StringToHash("IsDamaged");
     private static readonly int DeathHash = Animator.StringToHash("IsDeath");
+
+    public void Initialize()
+    {
+        animator.Rebind();
+    }
 
     void Awake()
     {

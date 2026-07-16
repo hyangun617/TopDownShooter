@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+using Random = UnityEngine.Random;
 
 public class UnitHealth : MonoBehaviour, IDamagable 
 {
@@ -15,14 +18,15 @@ public class UnitHealth : MonoBehaviour, IDamagable
     private bool isDead = false;
 
     // SFX
-    private AudioClip damagedSFX;
-    private AudioClip deathSFX;
+    private List<AudioClip> damagedSFX;
+    private List<AudioClip> deathSFX;
 
-    public void SetDamageSFX(AudioClip damagedSFX) => this.damagedSFX = damagedSFX;
-    public void SetDeathSFX(AudioClip deathSFX) => this.deathSFX = deathSFX;
+    public void SetDamageSFX(List<AudioClip> damagedSFX) => this.damagedSFX = damagedSFX;
+    public void SetDeathSFX(List<AudioClip> deathSFX) => this.deathSFX = deathSFX;
 
     public void Initialize(float maxHp)
     {
+        Debug.Log("UnitHealth Initialize");
         this.maxHp = maxHp;
         currentHp = maxHp;
         isDead = false;
@@ -38,7 +42,7 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
         currentHp -= value;
         // 데미지 효과음 출력.
-        GameManager.Instance.Sound.PlaySfx(damagedSFX, transform.position);
+        GameManager.Instance.SoundMgr.PlaySfx(damagedSFX[Random.Range(0, damagedSFX.Count)], clipVolume: 0.5f, followTarget: this.transform);
 
         // 이벤트 호출.
         OnDamaged?.Invoke(currentHp);
@@ -48,7 +52,7 @@ public class UnitHealth : MonoBehaviour, IDamagable
         {
             isDead = true;
             // 죽음 효과음 출력
-            GameManager.Instance.Sound.PlaySfx(deathSFX, transform.position);
+            GameManager.Instance.SoundMgr.PlaySfx(deathSFX[Random.Range(0, deathSFX.Count)], clipVolume: 0.5f, followTarget: this.transform);
 
             // 죽음 이벤트 호출
             OnDeath?.Invoke();      // 사망 이벤트 발생.

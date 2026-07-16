@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class SoundManager
 {
@@ -8,6 +7,7 @@ public class SoundManager
     private readonly Queue<AudioSource> sfxPool = new();
     private readonly Transform sfxRoot;
 
+    public float MasterVolume = 1f;
     public float SFXVolume = 1f;
     public float BGMVolume = 1f;
 
@@ -48,16 +48,25 @@ public class SoundManager
     }
 
     // 효과음 재생
-    public void PlaySfx(AudioClip clip, Vector3? worldPosition = null, float pitch = 1f)
+    public void PlaySfx(AudioClip clip, Vector3? worldPosition = null, float clipVolume = 1f, Transform followTarget = null, float pitch = 1f)
     {
         if (clip == null) return;
 
         AudioSource source = sfxPool.Count > 0 ? sfxPool.Dequeue() : CreateSfxSource();
 
-        if(worldPosition.HasValue)
+        if(followTarget != null)
         {
+            // 발생원을 따라가야 하는 소리.
+            source.transform.SetParent(followTarget, worldPositionStays: false);
+            source.transform.localPosition = Vector3.zero;
+            source.spatialBlend = 1f;
+        }
+        else if (worldPosition.HasValue)
+        {
+            // 그 자리에서 고정되는 소리.
+            source.transform.SetParent(sfxRoot, worldPositionStays: false);
             source.transform.position = worldPosition.Value;
-            source.spatialBlend = 1f;           // 3D 효과음.
+            source.spatialBlend = 1f;           
         }
         else
         {
@@ -65,18 +74,22 @@ public class SoundManager
         }
 
         source.clip = clip;
-        source.volume = SFXVolume;
+        source.volume = MasterVolume * SFXVolume * clipVolume;
         source.pitch = pitch;
         source.Play();
 
         // 재생 끝나면 풀로 반환
-        GameManager.Instance.StartCoroutine(ReturnAfterPlay(source, clip.length));
+        float actualDuration = clip.length / Mathf.Max(pitch, 0.01f);
+        GameManager.Instance.StartCoroutine(ReturnAfterPlay(source, actualDuration));
     }
 
     // sfx 풀로 반환하는 코루틴
     private System.Collections.IEnumerator ReturnAfterPlay(AudioSource source, float delay)
     {
         yield return new WaitForSeconds(delay);
+        if(source == null) yield break;
+
+        source.transform.SetParent(sfxRoot, worldPositionStays: false);
         sfxPool.Enqueue(source);
     }
 
@@ -87,7 +100,7 @@ public class SoundManager
         if(bgmSource.clip == clip) return;
 
         bgmSource.clip = clip;
-        bgmSource.volume = BGMVolume;
+        bgmSource.volume = MasterVolume * BGMVolume;
         bgmSource.Play();
     }
 

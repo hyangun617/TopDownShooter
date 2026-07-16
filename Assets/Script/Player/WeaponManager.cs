@@ -60,7 +60,7 @@ public class WeaponManager : MonoBehaviour
         // 장착 SFX
         if(newWeapon.equipSFX != null)
         {
-            GameManager.Instance.Sound.PlaySfx(newWeapon.equipSFX, transform.position);
+            GameManager.Instance.SoundMgr.PlaySfx(newWeapon.equipSFX, followTarget: this.transform);
         }
 
         currentWeapon = newWeapon;
