@@ -31,6 +31,6 @@ public class BootStrapper : MonoBehaviour
         };
         
         inputManager.Init();
-        gameManager.Init();
+        gameManager.Init().Forget();
     }
 }

@@ -14,21 +14,13 @@ public class Player : MonoBehaviour, IDamagable
     [SerializeField] private float attackRange = 50f;               // 사거리.
     [SerializeField] private float moveSpeed = 10f;                 // 이동 속도
 
-    // 멤버에 접근하는 프로퍼티
-    public float MaxHp => maxHp;
-    public float CurrentHp => currentHp;
-    public float AttackDamage => attackDamage;
-    public float AttackDelay => attackDelay;
-    public float AttackRange => attackRange;
-    public float MoveSpeed => moveSpeed;
-
     void Awake()
     {
         // 컴포넌트 읽어오기
         playerController = GetComponent<PlayerController>();
         playerAttack = GetComponent<PlayerAttack>();
 
-        playerController.MoveSpeed = MoveSpeed;
+        playerController.Init(moveSpeed);
 
         playerAttack.AttackDamage = attackDamage;
         playerAttack.AttackDelay = attackDelay;

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour, IAttackable
@@ -14,10 +15,22 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     public float AttackRange { get; set; }
     public float AttackDelay { get; set; }
     public float AttackDamage { get; set; }
+    
+    public float ReloadTime { get; set; }
+    private float currentloadTime;
+
+    private bool isWeaponReady = false;
 
     private float attackCooldown = 0f;                              // 공격 쿨다운.
-
     private bool isFiring = false;                                  // 발사 여부.
+
+    [SerializeField] private int maxAmmo;                           // 탄창.
+    [SerializeField] private int currentAmmo;
+
+    public event Action ReloadAmmo;                                   // 재장전 이벤트.
+    private bool isReload = false;
+
+    private Coroutine flashRoutine;
 
     // SFX
     private AudioClip AttackSFX;
@@ -42,8 +55,9 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     {
         // 이전 프레임부터 현재 프레임 사이의 수를 이용해 쿨타임 계산.
         if(attackCooldown >= 0) attackCooldown -= Time.deltaTime;
+        if(currentloadTime >= 0) currentloadTime -= Time.deltaTime;
 
-        if (isFiring && attackCooldown <= 0)
+        if (isWeaponReady&& isFiring && attackCooldown <= 0 && currentloadTime <= 0)
         {
             PlayAttack();
             animController.OnShoot();   
@@ -70,6 +84,12 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
     }
 
+    public void OnReload()
+    {
+        currentAmmo = maxAmmo;
+        isReload = false;
+    }
+
     public void SetFirePoint(Transform newFirePoint) => firePoint = newFirePoint;
 
     public void SetWeaponData(WeaponData weaponData)
@@ -78,10 +98,28 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         AttackDelay = weaponData.fireRate;
         AttackDamage = weaponData.damage;
         AttackSFX = weaponData.fireSFX;
+        maxAmmo = weaponData.magazineSize;
+        ReloadTime = weaponData.reloadTime;
+        currentAmmo = maxAmmo;
+
+        isWeaponReady = true;
     }
 
     public void PlayAttack()
-    {
+    {  
+        if(isReload) return;
+
+        if(currentAmmo <= 0)
+        {
+            isReload = true;
+            ReloadAmmo?.Invoke();
+            attackCooldown = AttackDelay;
+            currentloadTime = ReloadTime;
+            return;
+        }
+
+        currentAmmo--;
+
         // Top-Down 이기 때문에 Y축 값은 무시함. 
         // input Manager에서 마우스의 위치를 받아옴.
         Vector3 ClickPoint = new Vector3(InputManager.Instance.mouseWorldPos.x, 0f, InputManager.Instance.mouseWorldPos.z);
@@ -94,7 +132,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         Vector3 direction = (ClickPoint - fixedFirePosition).normalized;
 
         // 효과음 재생
-        GameManager.Instance.Sound.PlaySfx(AttackSFX);
+        GameManager.Instance.SoundMgr.PlaySfx(AttackSFX, worldPosition: this.firePoint.position);
 
         // 궤적 활성화
         bulletTrail.enabled = true;
@@ -124,8 +162,8 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
         // 코루틴을 사용하여 0.05초만 라인이 보이도록 함.
         // 이전에 이미 실행된 코루틴이 있다면, 종료하고 실행함.
-        StopCoroutine(nameof(FlashBulletTrail));        
-        StartCoroutine(nameof(FlashBulletTrail));
+        if(flashRoutine != null) StopCoroutine(flashRoutine);        
+        flashRoutine = StartCoroutine(FlashBulletTrail());
 
         // 디버그 전용, 씬에서만 해당 라인이 보임.
         Debug.DrawLine(firePoint.transform.position, bulletTrail.GetPosition(1), Color.red, 0.5f);

@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MeleeEnemy : Enemy
@@ -31,13 +32,35 @@ public class MeleeEnemy : Enemy
 
         stateMachine.Initialize<EnemyIdleState>();
 
+        meleeAttack.SetAttackSFX(attackSFX);
+    }
+
+    public override void OnSpawn()
+    {
+        health.Initialize(Stat.MaxHp);
+        context.Initialize();
+        controller.Initialize();
+        animController.Initialize();
+
         health.OnDeath += HandleDeath;
         health.OnDamaged += animController.TakeDamaged;
+
+        base.OnSpawn();
+
+        stateMachine.ChangeState<EnemyIdleState>();
+    }
+
+    public override void OnDespawn()
+    {
+        base.OnDespawn(); 
+
+        health.OnDeath -= HandleDeath;
+        health.OnDamaged -= animController.TakeDamaged;
     }
 
     protected override void LoadEnemyData(int id)
     {
-        Stat = GameManager.Instance.Data.meleeEnemyTB.GetEnemyDataById(id);
+        Stat = GameManager.Instance.DataMgr.meleeEnemyTB.GetEnemyDataById(id);
 
         // Table Data 로드 실패.
         if(Stat == null)
@@ -48,12 +71,6 @@ public class MeleeEnemy : Enemy
         meleeAttack.AttackDamage = Stat.AttackPoint;
         meleeAttack.AttackRange = Stat.AttackRange;
         meleeAttack.AttackDelay = Stat.AttackDelay;
-
-        // 미리 설정된 TB의 오디오 클립 값이 있는 경우.
-        if(Stat.AttackSFX != null)
-            meleeAttack.SetAttackSFX(Stat.AttackSFX);
-        else
-            meleeAttack.SetAttackSFX(attackSFX);
     }
 
     // 죽을 시 호출되는 메서드.
@@ -61,6 +78,7 @@ public class MeleeEnemy : Enemy
     {
         // FSM 상태를 죽음 상태로 변화.
         stateMachine.ChangeState<EnemyDeadState>();
+        NotifyDeath();
     }
 
     // 데미지 판정 (애니메이션 이벤트)

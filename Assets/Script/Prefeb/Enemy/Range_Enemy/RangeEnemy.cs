@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class RangeEnemy : Enemy
@@ -19,17 +18,46 @@ public class RangeEnemy : Enemy
         obstacleLayerMask = LayerMask.GetMask("Environment");
     }
 
-    protected override void Start()
+    protected override void SetupEnemy()
     {
-        base.Start();
-        RunWhenDataReady(SetupBehaviorTree);
+        base.SetupEnemy();
+
+        SetupBehaviorTree();
+    }
+
+    public override void OnSpawn()
+    {
+        health.Initialize(Stat.MaxHp);
+        controller.Initialize();
+        rangeAttack.Initialize();
+        animController.Initialize();
+        blackboard.Initialize();
+
+        blackboard.SetValue(BlackboardKeys.Self, this);
+        blackboard.SetValue(BlackboardKeys.TargetLayerMask, targetLayerMask);
+        blackboard.SetValue(BlackboardKeys.ObstacleLayerMask, obstacleLayerMask);
+
+        health.OnDeath += HandleDeath;
+        health.OnDamaged += animController.TakeDamaged;
+
+        behaviorTree.Cancel();
+        behaviorTree.Play();
+
+        base.OnSpawn();
+    }
+
+    public override void OnDespawn()
+    {
+        base.OnDespawn(); 
+
+        health.OnDeath -= HandleDeath;
+        health.OnDamaged -= animController.TakeDamaged;
     }
 
     private void HandleDeath()
     {
         Debug.Log($"{name} is Dead!");
         behaviorTree?.Pause();
-        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -45,7 +73,13 @@ public class RangeEnemy : Enemy
     // 원거리 데이터 테이블에서 Id 값으로 스탯 값 로드
     protected override void LoadEnemyData(int id)
     {
-        Stat = GameManager.Instance.Data.rangeEnemyTB.GetEnemyDataById(id);
+        Stat = GameManager.Instance.DataMgr.rangeEnemyTB.GetEnemyDataById(id);
+
+        // Table Data 로드 실패.
+        if(Stat == null)
+        {
+            Debug.LogError($"[EnemyTB] id : {id}에 해당하는 EnemyData가 Range_Enemy_TB에 존재하지 않습니다.");
+        }
 
         rangeAttack.AttackDamage = Stat.AttackPoint;
         rangeAttack.AttackDelay = Stat.AttackDelay;
@@ -65,8 +99,6 @@ public class RangeEnemy : Enemy
         INode root = BuildTree(blackboard);
         behaviorTree = new BehaviorTree(root, blackboard);
         behaviorTree.SetDelay(0.1f);
-
-        health.OnDeath += HandleDeath;
     }
 
     public void PlayAttack() => rangeAttack.PlayAttack();

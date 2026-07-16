@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -8,6 +7,8 @@ public class EnemyTB : ScriptableObject
 {
     [Header("Stat")]
     public List<EnemyData> enemyList = new List<EnemyData>();
+
+    public EnemyType enemyType;
 
     // 캐싱된 리스트
     private Dictionary<int, EnemyData> _table;

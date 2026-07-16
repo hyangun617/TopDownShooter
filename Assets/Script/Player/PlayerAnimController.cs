@@ -51,7 +51,7 @@ public class PlayerAnimController : MonoBehaviour
         float SfxLength = weaponManager.WeaponData.reloadSFX.length;
         float pitch = Mathf.Clamp(SfxLength / animLength, 0.8f, 1.5f);
         Debug.Log($"SFX Sound / pitch {pitch}");
-        GameManager.Instance.Sound.PlaySfx(weaponManager.WeaponData.reloadSFX, transform.position, pitch);
+        GameManager.Instance.SoundMgr.PlaySfx(weaponManager.WeaponData.reloadSFX, followTarget: this.transform, pitch: pitch);
     }
 
     public void OnShoot() => animator.SetTrigger(IsShootHash);

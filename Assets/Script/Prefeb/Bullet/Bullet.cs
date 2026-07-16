@@ -1,7 +1,9 @@
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviour, IPoolable
 {
+    public GameObject SourcePrefab { get; set; }
+
     [SerializeField] private float damage;
     [SerializeField] private float speed;
     [SerializeField] private float range;
@@ -11,6 +13,11 @@ public class Bullet : MonoBehaviour
     private Vector3 prevPos;
 
     private bool isActivated = false;
+
+    public void OnSpawn()
+    {
+        
+    }
 
     void Update()
     {
@@ -61,6 +68,11 @@ public class Bullet : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+    public void OnDespawn()
+    {
+        
+    }
+
     // 충돌 판정 이후 초기화.
     private void ResetBullet()
     {
@@ -75,5 +87,6 @@ public class Bullet : MonoBehaviour
         gameObject.SetActive(false);
 
         // 이후 풀로 반환 로직.
+        GameManager.Instance.PoolMgr.Release(gameObject);
     }
 }

@@ -45,4 +45,10 @@ public class Blackboard
     {
         data.Remove(key);
     }
+
+    // 초기화 메서드
+    public void Initialize()
+    {
+        data.Clear();
+    }
 }

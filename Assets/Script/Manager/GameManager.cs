@@ -1,4 +1,5 @@
 ﻿using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -6,10 +7,11 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     // 순수 C# 매니저
-    public DataManager Data { get; private set; }
+    public DataManager DataMgr { get; private set; }
     public ScoreManager ScoreMgr { get; private set; }
     public TimeManager TimeMgr { get; private set; }
-    public SoundManager Sound { get; private set; }
+    public SoundManager SoundMgr { get; private set; }
+    public PoolManager PoolMgr { get; private set; }
 
     // 게임 상태
     public GameState CurrentState { get; private set; }
@@ -21,29 +23,33 @@ public class GameManager : MonoBehaviour
     // 상태 변화시 호출하는 이벤트
     public event Action<GameState> OnGameStateChanged;
 
-    public void Init()
+    public async UniTaskVoid Init()
     {
         // 게임 매니저 초기화.
         Debug.Log("Game Manager Initialized"); 
 
         // 하위 매니저 생성 및 초기화.
-        Data = new DataManager();
+        DataMgr = new DataManager();
         ScoreMgr = new ScoreManager();
         TimeMgr = new TimeManager();
-        Sound = new SoundManager(this.transform);
-        Sound.BGMVolume = bgm_Volume;
-        Sound.SFXVolume = sfx_Volume;
+        SoundMgr = new SoundManager(this.transform);
+        PoolMgr = gameObject.AddComponent<PoolManager>();      // MonoBehavior를 상속 받았기에 new 사용 불가.
 
-        Data.OnDataInitialized += () => { Debug.Log("Data Manager Initialized"); };
+        SoundMgr.BGMVolume = bgm_Volume;
+        SoundMgr.SFXVolume = sfx_Volume;
+
+        DataMgr.OnDataInitialized += () => { Debug.Log("Data Manager Initialized"); };
 
         // 각 순수 C# 매니저 초기화
-        Data.Init();
+        await DataMgr.Init();
+
+        Debug.Log("All Managers Ready");
     }
 
     // 인스턴스 생성 메서드
     public void RegisterAsInstance()
     {
-        if(Instance != null && Instance != this)
+        if(Instance != null)
         {
             Destroy(gameObject);
             return;

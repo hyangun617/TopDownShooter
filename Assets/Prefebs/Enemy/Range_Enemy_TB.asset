@@ -22,3 +22,5 @@ MonoBehaviour:
     _attackRange: 15
     _detectRange: 25
     _enemyType: 1
+    _deadDuration: 0
+  enemyType: 1

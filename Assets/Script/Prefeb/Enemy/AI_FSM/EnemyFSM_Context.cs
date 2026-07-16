@@ -4,4 +4,9 @@ using UnityEngine;
 public class EnemyFSM_Context
 {
     public Transform Target;
+
+    public void Initialize()
+    {
+        Target = null;
+    }
 }

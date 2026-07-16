@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: CombatAssets_Local
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: CombatAssets_Local
+  m_GUID: 564010224be26f946a6080ca18c091e6
+  m_SerializeEntries:
+  - m_GUID: 669157a2e71eb0e479e48fbd4cc01bfc
+    m_Address: Assets/Prefebs/Enemy/Range/Range_Skeleton_Enemy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 81f37bf9a840d2741aa80e389499aa84
+    m_Address: Assets/Prefebs/Enemy/Melee/Melee_Skeleton_Enemy.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cf4edbe5233d3024ebcb0d92df9ae25b
+    m_Address: Bullet
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: eaa7e560f6f08ef4e9b315110fd4452c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: d95088ef75babf349a2629b146105ea5, type: 2}
+    - {fileID: 11400000, guid: 1845186d29074554988267bdd9607ee3, type: 2}

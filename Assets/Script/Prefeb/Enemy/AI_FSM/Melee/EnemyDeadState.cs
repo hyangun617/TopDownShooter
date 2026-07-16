@@ -27,7 +27,7 @@ public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
         yield return new WaitForSeconds(5f);
         
         // 매니저 풀에 반환.
-        enemy.gameObject.SetActive(false); // 매니저 풀이 구현되어 있지 않으므로 일단 비활성화.
+        enemy.ReturnToPool();
     }
 
     public override void Update()

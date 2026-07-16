@@ -14,22 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: 83c2d30d30b9fca4b9007fbe22a804fe
-  m_SerializeEntries:
-  - m_GUID: 36f67884cb744e94da6efcdef1dca705
-    m_Address: Assets/Prefebs/Enemy/Melee_Enemy_TB.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: af2055affc724bf4bb643e34a08991e2
-    m_Address: Assets/Prefebs/Enemy/Range_Enemy_TB.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cf4edbe5233d3024ebcb0d92df9ae25b
-    m_Address: Bullet
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: eaa7e560f6f08ef4e9b315110fd4452c, type: 2}
   m_SchemaSet:

@@ -1,27 +1,39 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(PlayerAnimController))]
+[RequireComponent(typeof(PlayerAnimController), typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour
 {
     // 플레이어 객체
     private Rigidbody rb;              
     private Vector2 moveInput;      
     private PlayerAnimController playerAnimController;
+    private PlayerAttack playerAttack;
 
-    public float MoveSpeed;
+    private float moveSpeed;
 
     private void Awake()
     {
         // GameObject에 등록된 컴포넌트를 받아옴.
         rb = GetComponent<Rigidbody>();
         playerAnimController = GetComponent<PlayerAnimController>();
+        playerAttack = GetComponent<PlayerAttack>();
+    }
+
+    // 초기값을 받아오는 메서드
+    public void Init(float moveSpeed)
+    {
+        this.moveSpeed = moveSpeed;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        InputManager.Instance.OnMove += onMove;
+        if(InputManager.Instance == null ) return;
+
+        InputManager.Instance.OnMove += OnMove;
         InputManager.Instance.OnPressed_R += OnReLoad;
+
+        playerAttack.ReloadAmmo += OnReLoad;
     }
 
     // Update is called once per frame
@@ -37,7 +49,7 @@ public class PlayerController : MonoBehaviour
             Vector3 localMove = transform.InverseTransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
             bool isMoved = moveInput.magnitude > 0;
 
-            playerAnimController.UpdateMoveParams(localMove, MoveSpeed / 10f, isMoved);
+            playerAnimController.UpdateMoveParams(localMove, moveSpeed / 10f, isMoved);
         }        
     }
 
@@ -46,7 +58,7 @@ public class PlayerController : MonoBehaviour
         // 입력 값에 따라 단위 벡터를 받아옴.
         Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
 
-        rb.MovePosition(rb.position + move * MoveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + move * moveSpeed * Time.fixedDeltaTime);
     }
 
     private void LookAtMouse()
@@ -67,16 +79,20 @@ public class PlayerController : MonoBehaviour
     {
         // 리로드 메서드
         playerAnimController.OnReload();
-        
+        playerAttack.OnReload();      
     }
 
     private void OnDestroy()
     {
-        if (InputManager.Instance != null)
-            InputManager.Instance.OnMove -= onMove;
+        if (InputManager.Instance == null) return;
+
+        InputManager.Instance.OnMove -= OnMove;
+        InputManager.Instance.OnPressed_R -= OnReLoad;      
+
+        playerAttack.ReloadAmmo -= OnReLoad;      
     }
 
-    void onMove(Vector2 input)
+    void OnMove(Vector2 input)
     {
         if (InputManager.Instance.IsInputEnabled)
         {
