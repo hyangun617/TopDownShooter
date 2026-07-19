@@ -24,11 +24,7 @@ public class BootStrapper : MonoBehaviour
         inputManager.RegisterAsInstance();
         gameManager.RegisterAsInstance();
 
-        // 각 매니저 초기화 이벤트 구독
-        inputManager.OnInputInitialized += () =>
-        {
-            Debug.Log("Input Manager Initialized");
-        };
+        
         
         inputManager.Init();
         gameManager.Init().Forget();

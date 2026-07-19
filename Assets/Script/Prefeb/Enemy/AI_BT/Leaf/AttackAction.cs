@@ -1,15 +1,10 @@
-using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public class AttackAction : LeafNode
 {
-    // 공격 딜레이 설정
-    private float attackDelay;
-    private float attackStartTime = -1f;        // -1은 공격 중 아님을 의미.
-
-    public AttackAction(Blackboard blackboard, float attackDelay) : base(blackboard)
+    public AttackAction(Blackboard blackboard) : base(blackboard)
     {
-        this.attackDelay = attackDelay;
+
     }
 
     public override NodeState Tick()
@@ -24,6 +19,7 @@ public class AttackAction : LeafNode
         }
 
         // 객체의 이동을 중지
+        self.SetMoveState(false);
         self.StopMoving();
 
         // 타겟에게로의 방향 계산
@@ -33,25 +29,13 @@ public class AttackAction : LeafNode
 
         self.Rotate(dir);
 
-        if(attackStartTime < 0f)
-        {
-            // 객체의 공격 함수 실행.
-            self.PlayAttack();
-            attackStartTime = Time.time;
-        }
+        self.AttackTrigger();
 
-        if(Time.time - attackStartTime >= attackDelay)
-        {
-            attackStartTime = -1f;      // 다음 공격을 위해 리셋
-            return NodeState.Success;    // 딜레이 끝. -> 다시 판단 가능.
-        }
-
-        return NodeState.Running;
+        return NodeState.Success;
     }
 
     public override void Cancel()
     {
         base.Cancel();
-        attackStartTime = -1;
     }
 }

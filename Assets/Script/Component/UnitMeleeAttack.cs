@@ -48,9 +48,6 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
         CheckMeleeHit();
     }
 
-    // 공격 SFX 설정 메서드
-    public void SetAttackSFX(List<AudioClip> audioClip) => attackSFX = audioClip;
-
     // 공격 판정에 쓸 박스 정보를 계산하는 공용 함수.
     private void GetAttackBox(out Vector3 center, out Quaternion rotation, out Vector3 halfExtents)
     {
@@ -80,6 +77,9 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
         yield return new WaitForSeconds(AttackDelay);
         isAttacking = false;
     }
+
+    // 공격 SFX 설정 메서드
+    public void SetAttackSFX(List<AudioClip> audioClip) => attackSFX = audioClip;
 
 #if UNITY_EDITOR
     void OnDrawGizmos()

@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MeleeEnemy : Enemy
@@ -43,7 +42,7 @@ public class MeleeEnemy : Enemy
         animController.Initialize();
 
         health.OnDeath += HandleDeath;
-        health.OnDamaged += animController.TakeDamaged;
+        health.OnDamaged += TakeDamage;
 
         base.OnSpawn();
 
@@ -55,18 +54,17 @@ public class MeleeEnemy : Enemy
         base.OnDespawn(); 
 
         health.OnDeath -= HandleDeath;
-        health.OnDamaged -= animController.TakeDamaged;
+        health.OnDamaged -= TakeDamage;
+    }
+
+    public override void TakeDamage(float vaule)
+    {
+        animController.TakeDamaged();
     }
 
     protected override void LoadEnemyData(int id)
     {
         Stat = GameManager.Instance.DataMgr.meleeEnemyTB.GetEnemyDataById(id);
-
-        // Table Data 로드 실패.
-        if(Stat == null)
-        {
-            Debug.LogError($"[EnemyTB] id : {id}에 해당하는 EnemyData가 Melee_Enemy_TB에 존재하지 않습니다.");
-        }
 
         meleeAttack.AttackDamage = Stat.AttackPoint;
         meleeAttack.AttackRange = Stat.AttackRange;

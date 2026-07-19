@@ -12,9 +12,6 @@ public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
 
     public override void Enter()
     {
-        // 상태 진입 시 로직
-        MyGame.Utility.Debugger.Log($"{enemy.name} entered Dead State.");
-
         enemy.StopMoving();
         enemy.DeathTrigger();
 

@@ -16,17 +16,12 @@ public class GameManager : MonoBehaviour
     // 게임 상태
     public GameState CurrentState { get; private set; }
 
-    // 각종 파라미터
-    [SerializeField] private float bgm_Volume = 1f;
-    [SerializeField] private float sfx_Volume = 1f;
-
     // 상태 변화시 호출하는 이벤트
     public event Action<GameState> OnGameStateChanged;
 
     public async UniTaskVoid Init()
     {
         // 게임 매니저 초기화.
-        Debug.Log("Game Manager Initialized"); 
 
         // 하위 매니저 생성 및 초기화.
         DataMgr = new DataManager();
@@ -34,11 +29,6 @@ public class GameManager : MonoBehaviour
         TimeMgr = new TimeManager();
         SoundMgr = new SoundManager(this.transform);
         PoolMgr = gameObject.AddComponent<PoolManager>();      // MonoBehavior를 상속 받았기에 new 사용 불가.
-
-        SoundMgr.BGMVolume = bgm_Volume;
-        SoundMgr.SFXVolume = sfx_Volume;
-
-        DataMgr.OnDataInitialized += () => { Debug.Log("Data Manager Initialized"); };
 
         // 각 순수 C# 매니저 초기화
         await DataMgr.Init();
@@ -54,9 +44,7 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        Instance = this;
-
-        Debug.Log("Game Manager Instance Created"); 
+        Instance = this; 
     }
 
     // 상태 변환 메서드
@@ -105,13 +93,4 @@ public class GameManager : MonoBehaviour
                 }
         }
     }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        // 값 범위 검증
-        bgm_Volume = Mathf.Clamp01(bgm_Volume);
-        sfx_Volume = Mathf.Clamp01(sfx_Volume);
-    }
-#endif
 }

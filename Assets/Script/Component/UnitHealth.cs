@@ -6,7 +6,7 @@ using Random = UnityEngine.Random;
 
 public class UnitHealth : MonoBehaviour, IDamagable 
 {
-    private float currentHp;
+    [SerializeField] private float currentHp;
     private float maxHp;
 
     public float CurrentHp => currentHp;
@@ -26,7 +26,6 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
     public void Initialize(float maxHp)
     {
-        Debug.Log("UnitHealth Initialize");
         this.maxHp = maxHp;
         currentHp = maxHp;
         isDead = false;
@@ -46,7 +45,6 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
         // 이벤트 호출.
         OnDamaged?.Invoke(currentHp);
-        Debug.Log($"{currentHp}");
 
         if(currentHp <= 0)
         {

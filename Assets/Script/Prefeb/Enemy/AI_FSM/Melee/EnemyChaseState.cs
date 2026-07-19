@@ -9,11 +9,8 @@ public class EnemyChaseState : EnemyBaseState<MeleeEnemy>
 
     public override void Enter()
     {
-        // 상태 진입 시 로직
-        MyGame.Utility.Debugger.Log($"{enemy.name} entered Chase State.");
-
         // 애니메이션 상태 변경
-        enemy.SetAnimState(UnitAnimState.Running);
+        enemy.SetMoveState(true);
 
         enemy.bcolor = Color.red;
     }
