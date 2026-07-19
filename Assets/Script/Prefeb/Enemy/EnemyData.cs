@@ -11,9 +11,11 @@ public class EnemyData
     [SerializeField] private float _movementSpeed;
     [SerializeField] private float _attackDelay;
     [SerializeField] private float _attackRange;
+    [SerializeField] private float _attackSpeed;
     [SerializeField] private float _detectRange;
     [SerializeField] private EnemyType _enemyType;
     [SerializeField] private float _deadDuration;
+  
 
     public int Id => _id;
     public float MaxHp => _maxHp;
@@ -22,7 +24,9 @@ public class EnemyData
     public float MovementSpeed => _movementSpeed;
     public float AttackDelay => _attackDelay;
     public float AttackRange => _attackRange;
+    public float AttackSpeed => _attackSpeed;
     public float DetectRange => _detectRange;
     public EnemyType EnemyType => _enemyType;
     public float DeadDuration => _deadDuration;
+
 }

@@ -12,11 +12,8 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
 
     public override void Enter()
     {
-        // 상태 진입 시 로직
-        MyGame.Utility.Debugger.Log($"{enemy.name} entered Idle State.");
-
         // 애니메이션 상태 변경.
-        enemy.SetAnimState(UnitAnimState.Idle);
+        enemy.SetMoveState(false);
 
         enemy.bcolor = Color.green;
         enemy.StopMoving();

@@ -40,8 +40,6 @@ public class InputManager : MonoBehaviour
             return;
         }
         Instance = this;
-
-        Debug.Log("Input Manager Instance Created"); 
     }
 
     // 초기화. 
@@ -51,8 +49,6 @@ public class InputManager : MonoBehaviour
         cam = Camera.main;                                         // 메인 카메라 할당.
         groundLayer = LayerMask.GetMask("Ground");                  // 레이어 마스크 참조, 해당 이름으로 된 레이어가 지정된 순서를 읽어옴.
         OnInputInitialized?.Invoke();                              // InputManager 초기화 완료 이벤트 호출.
-
-        Debug.Log("Input Manager Init"); 
     }
 
     private void OnEnable()

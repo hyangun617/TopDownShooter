@@ -32,8 +32,6 @@ public class Player : MonoBehaviour, IDamagable
     // 데미지를 입는 메서드.
     public void TakeDamage(float value)
     {
-        Debug.Log($"Player Take Damage! : {value}");
-
         currentHp -= value;
 
         // 체력이 0 이하라면 사망처리.
@@ -46,9 +44,7 @@ public class Player : MonoBehaviour, IDamagable
     // 플레이어 사망.
     // 게임 일시 정지.
     private void OnDead()
-    {
-        Debug.Log("Player is Dead!");
-        
+    {   
         // 컨트롤러와 슈터 비활성화
         playerController.enabled = false;
         playerAttack.enabled = false;

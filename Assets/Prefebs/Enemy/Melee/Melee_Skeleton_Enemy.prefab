@@ -135,7 +135,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!65 &104242862083794007
 BoxCollider:
@@ -194,6 +194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91fed5477d1324a4497e315409bfa290, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitHealth
+  currentHp: 0
 --- !u!114 &4537349546142518882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,6 +230,7 @@ MonoBehaviour:
     _movementSpeed: 0
     _attackDelay: 0
     _attackRange: 0
+    _attackSpeed: 0
     _detectRange: 0
     _enemyType: 0
     _deadDuration: 0

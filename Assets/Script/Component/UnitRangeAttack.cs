@@ -23,30 +23,23 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
 
     // 공격 여부
     private bool isAttacking = false;
-    private float isCooldown;
 
     // SFX
     private List<AudioClip> attackSFX;
 
-    public void Initialize()
+    public void Initialize(float attackSpeed)
     {
         bulletData = ScriptableObject.CreateInstance<BulletData>();
 
         bulletPrefeb = GameManager.Instance.DataMgr.bulletPrefab;
         prefabLoaded = bulletPrefeb != null;
 
-        isCooldown = AttackDelay;
-    }
-
-    void Update()
-    {
-        if(isCooldown >= 0) isCooldown -= Time.deltaTime;
+        AttackSpeed = attackSpeed;
     }
 
     public void PlayAttack()
     {
         if(!prefabLoaded) return;
-        if(isCooldown >= 0) return;
 
         // 탄환 정보 초기화
         bulletData.damage = AttackDamage;
@@ -56,7 +49,6 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
 
         // 원거리 공격 메서드
         StartCoroutine(OnRangeAttacking());
-        Debug.Log("Range Attack!");
         
         // 발사 방향
         Vector3 dir = transform.forward.normalized; 
@@ -64,12 +56,11 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
         GameObject bulletObj = GameManager.Instance.PoolMgr.Get(bulletPrefeb);
 
         bulletObj.transform.SetPositionAndRotation(firePoint.position, firePoint.rotation);
-        Debug.Log($"Bullet Position is : {firePoint.position}");
 
         if(bulletObj.TryGetComponent<Bullet>(out var spawnedBullet))
         {
+            GameManager.Instance.SoundMgr.PlaySfx(attackSFX[Random.Range(0, attackSFX.Count)], clipVolume: 0.5f, followTarget: transform, pitch: 1.5f);
             spawnedBullet.ShootBullet(bulletData, firePoint.position, dir, targetLayerMask);
-            isCooldown = AttackDelay;   
         }  
     }
 
@@ -79,6 +70,8 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
         yield return new WaitForSeconds(AttackDelay);
         isAttacking = false;
     }
+
+    public void SetAttackSFX(List<AudioClip> source) => attackSFX = source;
 
 #if UNITY_EDITOR
     void OnDrawGizmos()

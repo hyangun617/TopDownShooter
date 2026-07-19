@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class RangeEnemy : Enemy
 {
@@ -23,13 +24,14 @@ public class RangeEnemy : Enemy
         base.SetupEnemy();
 
         SetupBehaviorTree();
+        rangeAttack.SetAttackSFX(attackSFX);
     }
 
     public override void OnSpawn()
     {
         health.Initialize(Stat.MaxHp);
         controller.Initialize();
-        rangeAttack.Initialize();
+        rangeAttack.Initialize(AttackSpeed);
         animController.Initialize();
         blackboard.Initialize();
 
@@ -38,7 +40,7 @@ public class RangeEnemy : Enemy
         blackboard.SetValue(BlackboardKeys.ObstacleLayerMask, obstacleLayerMask);
 
         health.OnDeath += HandleDeath;
-        health.OnDamaged += animController.TakeDamaged;
+        health.OnDamaged += TakeDamage;
 
         behaviorTree.Cancel();
         behaviorTree.Play();
@@ -51,13 +53,23 @@ public class RangeEnemy : Enemy
         base.OnDespawn(); 
 
         health.OnDeath -= HandleDeath;
-        health.OnDamaged -= animController.TakeDamaged;
+        health.OnDamaged -= TakeDamage;
+    }
+
+    public override void TakeDamage(float vaule)
+    {
+        animController.TakeDamaged();
     }
 
     private void HandleDeath()
     {
-        Debug.Log($"{name} is Dead!");
+        Debug.Log("Death Triggered! ");
         behaviorTree?.Pause();
+        animController.DeathTrigger();        
+        NotifyDeath();
+
+        // 풀 매니저에 반환
+        StartCoroutine(ReleaseAfterDelay());
     }
 
     // Update is called once per frame
@@ -74,12 +86,6 @@ public class RangeEnemy : Enemy
     protected override void LoadEnemyData(int id)
     {
         Stat = GameManager.Instance.DataMgr.rangeEnemyTB.GetEnemyDataById(id);
-
-        // Table Data 로드 실패.
-        if(Stat == null)
-        {
-            Debug.LogError($"[EnemyTB] id : {id}에 해당하는 EnemyData가 Range_Enemy_TB에 존재하지 않습니다.");
-        }
 
         rangeAttack.AttackDamage = Stat.AttackPoint;
         rangeAttack.AttackDelay = Stat.AttackDelay;
@@ -101,8 +107,6 @@ public class RangeEnemy : Enemy
         behaviorTree.SetDelay(0.1f);
     }
 
-    public void PlayAttack() => rangeAttack.PlayAttack();
-
     // 트리 구조 BehaviorTree
     private INode BuildTree(Blackboard blackboard)
     {
@@ -111,7 +115,8 @@ public class RangeEnemy : Enemy
             .Selector()
                 .Sequence() // 공격 로직
                     .Leaf(new IsCanAttackedCondition(blackboard))
-                    .Leaf(new AttackAction(blackboard, Stat.AttackDelay))
+                    .Leaf(new CheckAttackDelay(blackboard, Stat.AttackDelay))
+                    .Leaf(new AttackAction(blackboard))
                 .End()
                 .Sequence() // 감지 및 이동 로직
                     .Leaf(new IsPlayerDetectedCondition(blackboard))
@@ -119,5 +124,11 @@ public class RangeEnemy : Enemy
                 .End()
             .End()
             .Build();
+    }
+
+    private IEnumerator ReleaseAfterDelay()
+    {
+        yield return new WaitForSeconds(5f);
+        ReturnToPool();
     }
 }

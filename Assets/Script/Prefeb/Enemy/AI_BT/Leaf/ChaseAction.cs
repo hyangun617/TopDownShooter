@@ -27,6 +27,7 @@ public class ChaseAction : LeafNode
         }
         
         // 플레이어의 이동 메서드 호출
+        self.SetMoveState(true);
         self.MoveToward(target.position, self.MoveSpeed);
         return NodeState.Running;
     }

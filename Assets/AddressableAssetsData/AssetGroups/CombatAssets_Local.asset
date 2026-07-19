@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: CombatAssets_Local
   m_GUID: 564010224be26f946a6080ca18c091e6
   m_SerializeEntries:
+  - m_GUID: 3aee864212bdd344c8cbd98f1142fdc9
+    m_Address: Assets/Prefebs/Bullet/Bullet.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 669157a2e71eb0e479e48fbd4cc01bfc
     m_Address: Assets/Prefebs/Enemy/Range/Range_Skeleton_Enemy.prefab
     m_ReadOnly: 0
@@ -23,12 +29,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 81f37bf9a840d2741aa80e389499aa84
     m_Address: Assets/Prefebs/Enemy/Melee/Melee_Skeleton_Enemy.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CombatAssets
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cf4edbe5233d3024ebcb0d92df9ae25b
-    m_Address: Bullet
     m_ReadOnly: 0
     m_SerializedLabels:
     - CombatAssets

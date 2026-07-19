@@ -21,6 +21,7 @@ public class IsCanAttackedCondition : LeafNode
         // 사거리 내라면 성공
         if(dist <= self.AttackRange)
         {
+            self.SetMoveState(false);
             return NodeState.Success;
         }
 

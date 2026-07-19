@@ -141,8 +141,6 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         // 플레이어의 위치에서 단위 벡터 direction의 방향으로 range 만큼의 사거리로 ray 발사. -> attackableLayer의 레이어만 감지함.
         if(Physics.Raycast(firePoint.transform.position, direction, out RaycastHit otherHit, AttackRange, attackableLayer))
         {
-            Debug.Log($"Hit Object: {otherHit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(otherHit.collider.gameObject.layer)}");
-
             // 상대방 객체의 충돌체를 읽어와 오브젝트를 감지함.
             Vector3 lastPoint = new Vector3(otherHit.point.x, firePoint.transform.position.y, otherHit.point.z);
             bulletTrail.SetPosition(1, lastPoint);
@@ -156,8 +154,6 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         {
             Vector3 endPoint = firePoint.transform.position + direction * AttackRange;
             bulletTrail.SetPosition(1, endPoint);
-
-            Debug.Log($"{firePoint.transform.position}, {endPoint} FIRE!");
         }
 
         // 코루틴을 사용하여 0.05초만 라인이 보이도록 함.

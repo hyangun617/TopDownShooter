@@ -39,10 +39,8 @@ public class Bullet : MonoBehaviour, IPoolable
             if(hit.collider.TryGetComponent<IDamagable>(out var hitObject))
             {
                 hitObject.TakeDamage(damage);
-            }   
-
-            ResetBullet();
-            // 이후 풀로 반환.            
+                ResetBullet();
+            }
 
             return;
         }

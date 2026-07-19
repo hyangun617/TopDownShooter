@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+[RequireComponent(typeof(UnitAnimController), typeof(UnitHealth), typeof(UnitController))]
 public abstract class Enemy : MonoBehaviour, IPoolable
 {
     // 유닛 컴포넌트
@@ -43,11 +44,13 @@ public abstract class Enemy : MonoBehaviour, IPoolable
     public LayerMask TargetLayerMask => targetLayerMask;
     public LayerMask ObstacleLayerMask => obstacleLayerMask;
     public float AttackRange => Stat.AttackRange;
+    public float AttackSpeed => Stat.AttackSpeed;
     public float AttackPoint => Stat.AttackPoint;
     public float AttackDelay => Stat.AttackDelay;
     public float DetectRange => Stat.DetectRange;
     public float MoveSpeed => Stat.MovementSpeed;
     public Vector3 Position => controller.Position;
+
 
     // 디버깅용 멤버
     [Header("Debug")]
@@ -55,6 +58,7 @@ public abstract class Enemy : MonoBehaviour, IPoolable
 
     // 데이터 로드를 위한 추상 메서드
     protected abstract void LoadEnemyData(int id);
+    public abstract void TakeDamage(float value);
 
     protected virtual void Awake()
     {
@@ -82,6 +86,7 @@ public abstract class Enemy : MonoBehaviour, IPoolable
     public void EnsureSetup()
     {
         if(isSetup) return;
+        
         RunWhenDataReady(SetupEnemy);
         isSetup = true;
     }
@@ -113,7 +118,10 @@ public abstract class Enemy : MonoBehaviour, IPoolable
         // 컴포넌트들 초기화 로직.
         health.Initialize(Stat.MaxHp);
         health.SetDamageSFX(damageSFX);
-        health.SetDeathSFX(deathSFX);        
+        health.SetDeathSFX(deathSFX); 
+
+        controller.Initialize();
+        animController.Initialize();
     }
 
     public void NotifyDeath()
@@ -126,14 +134,14 @@ public abstract class Enemy : MonoBehaviour, IPoolable
         GameManager.Instance.PoolMgr.Release(gameObject);
     }
 
-    // Enemy AI를 위한 위임 메서드
+    // 위임 메서드
+    // Controller
     public void MoveToward(Vector3 targetPosition, float speed) => controller.MoveToward(targetPosition, speed);
     public void StopMoving() => controller.StopMoving();
-    public void TakeDamage(float damage) => health.TakeDamage(damage);
-
     public void Rotate(Vector3 dir) => controller.Rotate(dir);    
     
-    public void SetAnimState(UnitAnimState state) => animController.SetAnimState(state);
+    // Animator
+    public void SetMoveState(bool state) => animController.SetMoveState(state);
     public void AttackTrigger() => animController.AttackTrigger();
     public void DeathTrigger() => animController.DeathTrigger();
 
