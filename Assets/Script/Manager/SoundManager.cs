@@ -7,11 +7,19 @@ public class SoundManager
     private readonly Queue<AudioSource> sfxPool = new();
     private readonly Transform sfxRoot;
 
-    public float MasterVolume = 1f;
-    public float SFXVolume = 1f;
-    public float BGMVolume = 1f;
+    private float MasterVolume = 1f;
+    private float SFXVolume = 1f;
+    private float BGMVolume = 1f;
 
     private const int INITIAL_POOL_SIZE = 8;
+
+#region Setting
+
+    public void SetMasterVolume(float value) => MasterVolume = value;
+    public void SetSFXVolume(float value) => SFXVolume = value;
+    public void SetBGMVolume(float value) => BGMVolume = value;
+
+#endregion
 
     public SoundManager(Transform root)
     {

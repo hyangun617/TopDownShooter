@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class Player : MonoBehaviour, IDamagable
 {
@@ -14,6 +15,12 @@ public class Player : MonoBehaviour, IDamagable
     [SerializeField] private float attackRange = 50f;               // 사거리.
     [SerializeField] private float moveSpeed = 10f;                 // 이동 속도
 
+    public float MaxHp => maxHp;
+
+    // 이벤트
+    public Action<float> onTakeDamage;
+    public Action onDeath;
+
     void Awake()
     {
         // 컴포넌트 읽어오기
@@ -26,6 +33,8 @@ public class Player : MonoBehaviour, IDamagable
         playerAttack.AttackDelay = attackDelay;
         playerAttack.AttackRange = attackRange;
 
+        UIManager.Instance.ReloadBind(playerAttack);
+
         currentHp = maxHp;
     }
 
@@ -33,6 +42,7 @@ public class Player : MonoBehaviour, IDamagable
     public void TakeDamage(float value)
     {
         currentHp -= value;
+        onTakeDamage?.Invoke(value);
 
         // 체력이 0 이하라면 사망처리.
         if(currentHp <= 0)
@@ -48,6 +58,8 @@ public class Player : MonoBehaviour, IDamagable
         // 컨트롤러와 슈터 비활성화
         playerController.enabled = false;
         playerAttack.enabled = false;
+
+        onDeath?.Invoke();
         
         // 게임 상태를 변경
         GameManager.Instance.ChangeState(GameState.GameOver);

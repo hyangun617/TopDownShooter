@@ -20,9 +20,11 @@ MonoBehaviour:
     _movementSpeed: 5
     _attackDelay: 3
     _attackRange: 1
-    _detectRange: 10
+    _attackSpeed: 0
+    _detectRange: 100
     _enemyType: 0
     _deadDuration: 0
+    _score: 10
   - _id: 1
     _maxHp: 100
     _attackPoint: 7
@@ -30,7 +32,9 @@ MonoBehaviour:
     _movementSpeed: 5
     _attackDelay: 3
     _attackRange: 1
-    _detectRange: 10
+    _attackSpeed: 0
+    _detectRange: 100
     _enemyType: 0
     _deadDuration: 0
+    _score: 15
   enemyType: 0

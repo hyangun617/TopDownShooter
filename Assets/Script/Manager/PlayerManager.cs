@@ -8,10 +8,8 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform spawnPoint;
 
-    public Transform PlayerTransform { get; private set; }
-    public GameObject PlayerObject { get; private set; }
-
     public static event Action<Transform> OnPlayerSpawned;
+    public static event Action<GameObject> GetPlayerObjAfterSpawned;
 
     private void Awake()
     {
@@ -25,9 +23,10 @@ public class PlayerManager : MonoBehaviour
 
     public void SpawnPlayer()
     {
-        PlayerObject = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
-        PlayerTransform = PlayerObject.transform;
+        var PlayerObject = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
 
-        OnPlayerSpawned?.Invoke(PlayerTransform);
+        OnPlayerSpawned?.Invoke(PlayerObject.transform);
+        Debug.Log("Player Spawned");
+        GetPlayerObjAfterSpawned?.Invoke(PlayerObject);
     }
 }

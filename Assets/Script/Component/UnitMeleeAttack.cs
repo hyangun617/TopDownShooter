@@ -36,8 +36,6 @@ public class UnitMeleeAtack : MonoBehaviour, IAttackable
     // 공격 실행 메서드.
     public void PlayAttack()
     {
-        MyGame.Utility.Debugger.Log($"{name}'s Attack!");
-
         // 기즈모 박스 그리기
         StartCoroutine(ShowAttackGizmo());
 

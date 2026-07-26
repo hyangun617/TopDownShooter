@@ -31,9 +31,9 @@ public class PlayerController : MonoBehaviour
         if(InputManager.Instance == null ) return;
 
         InputManager.Instance.OnMove += OnMove;
-        InputManager.Instance.OnPressed_R += OnReLoad;
+        InputManager.Instance.OnPressed_R += OnReload;
 
-        playerAttack.ReloadAmmo += OnReLoad;
+        playerAttack.ReloadAmmo += OnReload;
     }
 
     // Update is called once per frame
@@ -75,11 +75,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnReLoad()
+    private void OnReload()
     {
         // 리로드 메서드
-        playerAnimController.OnReload();
-        playerAttack.OnReload();      
+        playerAnimController.OnReload();      
+        playerAttack.TryReload();
     }
 
     private void OnDestroy()
@@ -87,9 +87,9 @@ public class PlayerController : MonoBehaviour
         if (InputManager.Instance == null) return;
 
         InputManager.Instance.OnMove -= OnMove;
-        InputManager.Instance.OnPressed_R -= OnReLoad;      
+        InputManager.Instance.OnPressed_R -= OnReload;      
 
-        playerAttack.ReloadAmmo -= OnReLoad;      
+        playerAttack.ReloadAmmo -= OnReload;      
     }
 
     void OnMove(Vector2 input)

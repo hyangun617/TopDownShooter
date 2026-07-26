@@ -10,25 +10,28 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
     private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
     private PlayerAnimController animController;
+    private WeaponData weaponData;
     
     // IAttackable
     public float AttackRange { get; set; }
     public float AttackDelay { get; set; }
     public float AttackDamage { get; set; }
-    
-    public float ReloadTime { get; set; }
-    private float currentloadTime;
 
+    // Weapon & Reload
     private bool isWeaponReady = false;
-
+    private float currentloadTime;    
     private float attackCooldown = 0f;                              // 공격 쿨다운.
     private bool isFiring = false;                                  // 발사 여부.
 
-    [SerializeField] private int maxAmmo;                           // 탄창.
     [SerializeField] private int currentAmmo;
+    public int CurrentAmmo => currentAmmo;
 
-    public event Action ReloadAmmo;                                   // 재장전 이벤트.
+    public event Action ReloadAmmo;                                 // 재장전 이벤트.
+    public event Action OnReloadStart;
+    public event Action<float> OnReloadProgress;
+    public event Action<int> OnReloadComplete;                      // 리로드 이벤트
     private bool isReload = false;
+    private Coroutine reloadCoroutine;
 
     private Coroutine flashRoutine;
 
@@ -84,24 +87,63 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         }
     }
 
-    public void OnReload()
+    public void TryReload()
     {
-        currentAmmo = maxAmmo;
+        if(isReload) return;
+        if(currentAmmo >= weaponData.magazineSize)
+
+        CancelReload();
+
+        reloadCoroutine = StartCoroutine(ReloadRoutine());
+    }
+
+    private IEnumerator ReloadRoutine()
+    {
+        isReload = true;
+        OnReloadStart?.Invoke();
+
+        float elapsed = 0f;
+        float reloadTime = weaponData.reloadTime;
+
+        while(elapsed < reloadTime)
+        {
+            elapsed += Time.deltaTime;
+            float progress = Mathf.Clamp01(elapsed / reloadTime);
+            OnReloadProgress?.Invoke(progress);
+            yield return null;
+        }
+
+        currentAmmo = weaponData.magazineSize;
         isReload = false;
+        OnReloadComplete?.Invoke(currentAmmo);
+    }
+
+    private void NotifyAmmoChange()
+    {
+        OnReloadComplete?.Invoke(currentAmmo);
+    }
+
+    public void CancelReload()
+    {
+        if(reloadCoroutine != null)
+        {
+            StopCoroutine(reloadCoroutine);
+            isReload = false;
+        }
     }
 
     public void SetFirePoint(Transform newFirePoint) => firePoint = newFirePoint;
 
     public void SetWeaponData(WeaponData weaponData)
     {
+        this.weaponData = weaponData;
         AttackRange = weaponData.range;
         AttackDelay = weaponData.fireRate;
         AttackDamage = weaponData.damage;
         AttackSFX = weaponData.fireSFX;
-        maxAmmo = weaponData.magazineSize;
-        ReloadTime = weaponData.reloadTime;
-        currentAmmo = maxAmmo;
+        currentAmmo = weaponData.magazineSize;
 
+        NotifyAmmoChange();
         isWeaponReady = true;
     }
 
@@ -111,10 +153,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
         if(currentAmmo <= 0)
         {
-            isReload = true;
             ReloadAmmo?.Invoke();
-            attackCooldown = AttackDelay;
-            currentloadTime = ReloadTime;
             return;
         }
 
@@ -165,6 +204,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         Debug.DrawLine(firePoint.transform.position, bulletTrail.GetPosition(1), Color.red, 0.5f);
         
         attackCooldown = AttackDelay;
+        NotifyAmmoChange();
     }
 
     private IEnumerator FlashBulletTrail()
