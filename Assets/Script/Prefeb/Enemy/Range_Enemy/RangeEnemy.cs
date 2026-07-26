@@ -63,10 +63,12 @@ public class RangeEnemy : Enemy
 
     private void HandleDeath()
     {
-        Debug.Log("Death Triggered! ");
         behaviorTree?.Pause();
         animController.DeathTrigger();        
         NotifyDeath();
+
+        // 할당 점수 +
+        GameManager.Instance.SetScore(GameManager.Instance.Score + Stat.Score);
 
         // 풀 매니저에 반환
         StartCoroutine(ReleaseAfterDelay());

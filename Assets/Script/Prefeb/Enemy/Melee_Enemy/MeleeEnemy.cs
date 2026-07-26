@@ -76,6 +76,10 @@ public class MeleeEnemy : Enemy
     {
         // FSM 상태를 죽음 상태로 변화.
         stateMachine.ChangeState<EnemyDeadState>();
+
+        // 할당 점수 +
+        GameManager.Instance.SetScore(GameManager.Instance.Score + Stat.Score);
+        
         NotifyDeath();
     }
 

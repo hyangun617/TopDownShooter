@@ -21,7 +21,8 @@ MonoBehaviour:
     _attackDelay: 5
     _attackRange: 10
     _attackSpeed: 5
-    _detectRange: 15
+    _detectRange: 100
     _enemyType: 1
     _deadDuration: 0
+    _score: 30
   enemyType: 1
