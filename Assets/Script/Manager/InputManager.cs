@@ -1,29 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
+using Cysharp.Threading.Tasks;
 
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
+    public bool IsInputEnabled { get; set; } = true;                // 입력 활성화 여부    
+    public bool IsUIMode { get; private set; } = false;
+    
+#region Init
 
-    [SerializeField] private int groundLayer;                       // Physics.Raycast의 레이어 마스크를 위한 int 변수.
-
-    private Camera cam;                                             // 카메라를 기준으로 마우스의 위치를 읽어오기 때문에 카메라 객체를 읽어와야함.
-
-    private Vector2 mouseScreenPos;                                 // 실시간 마우스 위치.
-    private InputSystem inputSystem;                                // 마우스 입력을 받아올 InputSystem
-    public Vector3 mouseWorldPos { get; private set; }              // 레이캐스트를 통해 구한 마우스의 위치를 저장하는 프로퍼티
-
-    public bool IsInputEnabled { get; set; } = true;                // 입력 활성화 여부
-    public bool isMouseOverUI;                                      // UI 위의 마우스 존재 여부
-
-    private float fireHoldTime = 0f;                                // 입력을 길게 누른 시간.
-
-    // event
-    public event Action OnInputInitialized;                         // InputManager 초기화 완료 이벤트
-    public event Action<FireEventArgs> OnFire;                      // 발사 입력값을 전달할 이벤트
-    public event Action<Vector2> OnMove;                            // 이동 입력값을 전달할 이벤트
-    public event Action OnPressed_R;                                // R 키를 누르면 전달할 이벤트
+    public event Action OnInputInitialized;                 // InputManager 초기화 완료 이벤트
+    public event Action<bool> OnInputModeChanged;           // true = UI Mode
 
     // 참조 세팅
     private void Awake()
@@ -51,44 +40,98 @@ public class InputManager : MonoBehaviour
         OnInputInitialized?.Invoke();                              // InputManager 초기화 완료 이벤트 호출.
     }
 
-    private void OnEnable()
+    // 입력 모드를 변경하는 메서드
+    public void SetUIMode(bool uiMode)
     {
-        inputSystem.Player.Enable();
-        inputSystem.Player.MovePosition.performed += onMouseMoved;
-        inputSystem.Player.Fire.performed += OnFirePerformed;
-        inputSystem.Player.Fire.canceled += OnFireCanceled;
-        inputSystem.Player.Move.performed += OnPlayerMovement;
-        inputSystem.Player.Move.canceled += OnPlayerMovement;
-        inputSystem.Player.Reload.performed += OnPressedRKey;
+        if(IsUIMode == uiMode) return;
+
+        IsUIMode = uiMode;
+
+        if(uiMode)
+        {
+            inputSystem.Player.Disable();
+            inputSystem.UI.Enable();
+            GameManager.Instance.ChangeState(GameState.Paused);
+        }
+        else
+        {
+            inputSystem.Player.Enable();
+            inputSystem.UI.Disable();
+            GameManager.Instance.ChangeState(GameState.Playing);
+        }
+
+        OnInputModeChanged?.Invoke(uiMode);
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        // 입력 활성화 여부
-        if (!IsInputEnabled) return;
+        inputSystem.Player.MovePosition.performed += onMouseMoved;      // 마우스 움직임
+        inputSystem.Player.Fire.performed += OnFirePerformed;           // 마우스 클릭
+        inputSystem.Player.Fire.canceled += OnFireCanceled;
+        inputSystem.Player.Move.performed += OnPlayerMovement;          // 움직임
+        inputSystem.Player.Move.canceled += OnPlayerMovement;
+        inputSystem.Player.Reload.performed += OnPressedRKey;           // 재장전
 
-        UpdateMouseWorldPosition();
+        inputSystem.Player.Cancel.performed += OnMenuKeyPressed;
+        inputSystem.UI.Cancel.performed += OnUICancelPressed;
 
-        // 마우스 홀드 여부
-        if (inputSystem.Player.Fire.IsPressed())
-            fireHoldTime += Time.deltaTime;
+        UIManager.Instance.OnUIStackChanged += HandleUIStackChanged;
+
+        inputSystem.Player.Enable();
+        SetUIMode(false);
     }
 
     private void OnDisable()
     {
-        inputSystem.Player.MovePosition.performed -= onMouseMoved;              // 마우스 움직임
-        inputSystem.Player.Fire.performed -= OnFirePerformed;                         // 마우스 클릭
+        inputSystem.Player.MovePosition.performed -= onMouseMoved;              
+        inputSystem.Player.Fire.performed -= OnFirePerformed;                   
         inputSystem.Player.Fire.canceled -= OnFireCanceled;
         inputSystem.Player.Move.performed -= OnPlayerMovement;
         inputSystem.Player.Move.canceled -= OnPlayerMovement;
         inputSystem.Player.Reload.performed -= OnPressedRKey;
-        inputSystem.Player.Disable();
+
+        inputSystem.Player.Cancel.performed -= OnMenuKeyPressed;
+        inputSystem.UI.Cancel.performed -= OnUICancelPressed;
+
+        UIManager.Instance.OnUIStackChanged -= HandleUIStackChanged;
     }
 
-    private void OnDestroy()
+#endregion
+
+#region UI
+
+    private void HandleUIStackChanged(bool hasOpenedView)
     {
-        if(Instance == this) Instance = null;
+        SetUIMode(hasOpenedView);
     }
+
+    // Player Input Map에서 ESC -> 메뉴 화면 열기.
+    private void OnMenuKeyPressed(InputAction.CallbackContext ctx)
+    {
+        UIManager.Instance.OpenAsync<MenuView>().Forget();
+    }
+
+    // UI Input Map에서 ESC -> UI 닫기.
+    private void OnUICancelPressed(InputAction.CallbackContext ctx)
+    {
+        UIManager.Instance.CloseTop();
+    }
+
+#endregion
+
+#region Mouse
+
+    [SerializeField] private int groundLayer;                       // Physics.Raycast의 레이어 마스크를 위한 int 변수.
+
+    private Camera cam;                                             // 카메라를 기준으로 마우스의 위치를 읽어오기 때문에 카메라 객체를 읽어와야함.
+
+    private Vector2 mouseScreenPos;                                 // 실시간 마우스 위치.
+    private InputSystem inputSystem;                                // 마우스 입력을 받아올 InputSystem
+    public Vector3 mouseWorldPos { get; private set; }              // 레이캐스트를 통해 구한 마우스의 위치를 저장하는 프로퍼티
+
+    private float fireHoldTime = 0f;                                // 입력을 길게 누른 시간.
+
+    public event Action<FireEventArgs> OnFire;                      // 발사 입력값을 전달할 이벤트
 
     private void UpdateMouseWorldPosition()
     {
@@ -132,6 +175,13 @@ public class InputManager : MonoBehaviour
         fireHoldTime = 0f;
     }
 
+#endregion
+
+#region Keys
+
+    public event Action<Vector2> OnMove;                            // 이동 입력값을 전달할 이벤트
+    public event Action OnPressed_R;                                // R 키를 누르면 전달할 이벤트
+
     // 이동 입력 처리
     private void OnPlayerMovement(InputAction.CallbackContext ctx)
     {
@@ -141,5 +191,24 @@ public class InputManager : MonoBehaviour
     private void OnPressedRKey(InputAction.CallbackContext ctx)
     {
         OnPressed_R?.Invoke();
+    }
+
+#endregion
+
+    private void Update()
+    {
+        // 입력 활성화 여부
+        if (!IsInputEnabled || IsUIMode) return;
+
+        UpdateMouseWorldPosition();
+
+        // 마우스 홀드 여부
+        if (inputSystem.Player.Fire.IsPressed())
+            fireHoldTime += Time.deltaTime;
+    }
+
+    private void OnDestroy()
+    {
+        if(Instance == this) Instance = null;
     }
 }

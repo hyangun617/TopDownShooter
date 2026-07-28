@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SettingsView : UIView
+public class SettingView : UIView
 {
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
@@ -26,5 +26,10 @@ public class SettingsView : UIView
         sfxVolumeSlider.SetValueWithoutNotify(GameManager.Instance.SettingMgr.SFXVolume);
         bgmVolumeSlider.SetValueWithoutNotify(GameManager.Instance.SettingMgr.BGMVolume);
 
+    }
+
+    public override void Close()
+    {
+        base.Close();
     }
 }

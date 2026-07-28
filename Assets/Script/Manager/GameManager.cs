@@ -34,10 +34,14 @@ public class GameManager : MonoBehaviour
         // 하위 매니저 생성 및 초기화.
         DataMgr = new DataManager();
         SoundMgr = new SoundManager(this.transform);
+        SettingMgr = new SettingManager(SoundMgr);
         PoolMgr = gameObject.AddComponent<PoolManager>();      // MonoBehavior를 상속 받았기에 new 사용 불가.
 
         // 각 순수 C# 매니저 초기화
-        await DataMgr.Init();
+        // await DataMgr.Init();
+        await UniTask.WhenAll(      // 임시 메서드
+            DataMgr.Init()
+        );
 
         Debug.Log("All Managers Ready");
     }

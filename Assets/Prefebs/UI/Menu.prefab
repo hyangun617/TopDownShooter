@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 6579650717651843664}
   - component: {fileID: 7431709248071359703}
   - component: {fileID: 775965132756122015}
+  - component: {fileID: 666060275494565747}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -217,6 +218,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &666060275494565747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994779871516404687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b3ff233b386124386a366a92ce5b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuView
+  resumeButton: {fileID: 5473270672001856652}
+  settingButton: {fileID: 7365862928815259799}
+  titleButton: {fileID: 8097523830220543042}
 --- !u!1 &1314407753786813432
 GameObject:
   m_ObjectHideFlags: 0

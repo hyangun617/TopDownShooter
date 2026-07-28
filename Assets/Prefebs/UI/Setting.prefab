@@ -2343,6 +2343,7 @@ GameObject:
   - component: {fileID: 5395146640395202347}
   - component: {fileID: 4823319416797129470}
   - component: {fileID: 7911519505008524087}
+  - component: {fileID: 532090501256255735}
   m_Layer: 5
   m_Name: Setting
   m_TagString: Untagged
@@ -2408,6 +2409,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &532090501256255735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3463874101498680292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ecdb61c133d3c24f999c35eac6897c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingView
+  masterVolumeSlider: {fileID: 6360419441017978909}
+  sfxVolumeSlider: {fileID: 8699805413424483321}
+  bgmVolumeSlider: {fileID: 3620717251463708474}
 --- !u!1 &3571783747303753250
 GameObject:
   m_ObjectHideFlags: 0
