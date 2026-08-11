@@ -4,15 +4,50 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Threading.Tasks;
+using UnityEngine.ResourceManagement.ResourceLocations;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [SerializeField] private UIPreloadTable table;
+    [SerializeField] private Transform canvasRoot;
 
-    private void Awake()
+    // 라벨로 찾은 리소스 위치. Unload 이후 재로드할 때 사용.
+    private Dictionary<Type, IResourceLocation> viewLocations = new();
+
+    private Dictionary<Type, UIView> loadedViews = new();
+    private Dictionary<Type, AsyncOperationHandle<GameObject>> loadedHandles = new();
+    private Dictionary<Type, UniTask> loadingTask = new();
+
+    private Stack<UIView> openedStack = new();
+
+    public event Action<bool> OnUIStackChanged;     // true = 하나 이상의 UI가 열려 있음.
+
+    public event Action PreloadCompleted;
+
+    public void Init()
+    {
+
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if(canvasRoot == null)
+            Debug.LogWarning($"[UIManager] {scene.name}에 UICanvasRoot가 없습니다");
+    }
+
+    public void RegisterAsInstance()
     {
         if(Instance != null && Instance != this)
         {
@@ -22,87 +57,68 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
+    // RootCanvas를 등록하는 메서드
+    public void SetCanvasRoot(Transform root)
     {
-        PreloadAllAsync(table).Forget();
+        canvasRoot = root;
+
+        foreach(var view in loadedViews.Values)
+        {
+            view.transform.SetParent(canvasRoot, false);
+        }
+
+        Debug.Log("CanvasRoot 할당 완료");
     }
-
-#region HUD
-    [SerializeField] private HUDController hudController;        // 기본으로 씬에 배치된 HUD;
-
-    // 중재자.
-    public void ReloadBind(PlayerAttack playerAttack) => hudController.ReloadBind(playerAttack);
-#endregion
-
-#region UIView
-
-    // 가장 모든 UI의 상위 오브젝트.
-    [SerializeField] private Transform canvasRoot;
-
-    // Table의 Reference 들을 저장하는 컨테이너
-    private Dictionary<Type, AssetReferenceGameObject> viewRefs = new();
-
-    // 로드된 오브젝트 캐싱 컨테이너
-    private Dictionary<Type, UIView> loadedViews = new();
-
-    // 프리로드 된 핸들 저장 컨테이너
-    private Dictionary<Type, AsyncOperationHandle<GameObject>> loadedHandles = new();
-    // 현재 로드 중인 Task들을 저장하는 컨테이너
-    private Dictionary<Type, UniTask> loadingTask = new();
-
-    // Open() 된 순서를 저장하는 Stack 컨테이너
-    private Stack<UIView> openedStack = new();
-
-    public event Action<bool> OnUIStackChanged;     // true = 하나 이상의 UI가 열려 있음.
-
-    // Enum <-> Type 매핑
-    private static Type ResolveType(UIViewID id) => id switch
-    {
-        UIViewID.Menu => typeof(MenuView),
-        UIViewID.Settings => typeof(SettingView),
-
-        _ => throw new ArgumentOutOfRangeException(nameof(id), id, null)
-    };
-
     
     // UI Prefab 프리로드 메서드
-    public async UniTask PreloadAllAsync(UIPreloadTable table)
+    public async UniTask PreloadAllAsync(string uiLabel)
     {
-        if(table == null)
+        var locHandle = Addressables.LoadResourceLocationsAsync(uiLabel, typeof(GameObject));
+        var locations = await locHandle.ToUniTask();
+
+        if(locations == null || locations.Count == 0)
         {
-            Debug.LogError("UIPreloadTable이 존재하지 않습니다.");
+            Debug.LogError($"'{uiLabel}' 라벨에 등록된 UI 에셋이 없습니다.");
+            Addressables.Release(locHandle);
             return;
         }
 
-        foreach(var entry in table.entries)
-        {
-            var type = ResolveType(entry.viewID);
-            viewRefs[type] = entry.prefabRef;
+        var tasks = new List<UniTask>();
+        foreach(var location in locations)
+            tasks.Add(LoadAndCacheOnly(location));
 
-            var task = LoadAndCacheOnly(type, entry.prefabRef);
-            loadingTask[type] = task;
-            await task;
-            loadingTask.Remove(type);
-        }
+        await UniTask.WhenAll(tasks);
+
+        // 위치 조회용 핸들은 여기서 해제 (실제 에셋 핸들과는 별개)
+        Addressables.Release(locHandle);
+
+        PreloadCompleted?.Invoke();
     }
 
-    private async UniTask LoadAndCacheOnly(Type type, AssetReferenceGameObject prefabRef)
+    private async UniTask LoadAndCacheOnly(IResourceLocation location)
     {
-        var handle = prefabRef.LoadAssetAsync<GameObject>();
+        var handle = Addressables.LoadAssetAsync<GameObject>(location);
         await handle.ToUniTask();
 
-        // 로드에 실패 했으면
         if(handle.Status != AsyncOperationStatus.Succeeded)
         {
-            Debug.LogError($"UI 프리로드 실패 : {type.Name}");
+            Debug.LogError($"UI 프리로드 실패 : {location.PrimaryKey}");
             return;
         }
 
         var view = Instantiate(handle.Result, canvasRoot).GetComponent<UIView>();
+        if(view == null)
+        {
+            Debug.LogError($"{location.PrimaryKey} 프리팹에 UIView 컴포넌트가 없습니다.");
+            Addressables.Release(handle);
+            return;
+        }
         view.Close();
 
+        var type = view.GetType();          // 실제 컴포넌트 타입을 그대로 키로 사용
         loadedViews[type] = view;
         loadedHandles[type] = handle;
+        viewLocations[type] = location;
     }
 
     public async UniTask<T> OpenAsync<T>() where T : UIView
@@ -112,7 +128,7 @@ public class UIManager : MonoBehaviour
         // 이미 캐싱되어 존재한다면,
         if(loadedViews.TryGetValue(type, out var existing))
         {
-            if(!openedStack.Contains(existing))
+            if(existing.IsModal && !openedStack.Contains(existing))
                 PushToStack(existing);
             
             existing.Open();            
@@ -131,7 +147,7 @@ public class UIManager : MonoBehaviour
 
             if(loaded != null)
             {
-                if(!openedStack.Contains(loaded))
+                if(loaded.IsModal && !openedStack.Contains(loaded))
                     PushToStack(loaded);
 
                 loaded.Open();
@@ -141,9 +157,9 @@ public class UIManager : MonoBehaviour
         }
 
         // Unload 이후 재호출 상황.
-        if(viewRefs.TryGetValue(type, out var prefabRef))
+        if(viewLocations.TryGetValue(type, out var location))
         {
-            var task = LoadAndCacheOnly(type, prefabRef);
+            var task = LoadAndCacheOnly(location);
             loadingTask[type] = task;
             await task;
             loadingTask.Remove(type);
@@ -151,15 +167,17 @@ public class UIManager : MonoBehaviour
             loadedViews.TryGetValue(type, out var reloaded);
             if(reloaded != null)
             {
+                if(reloaded.IsModal && !openedStack.Contains(reloaded))
+                    PushToStack(reloaded);
+
                 reloaded.Open();
-                PushToStack(reloaded);
             }
 
             return reloaded as T;
         }
 
-        // 이 아래는 PreloadTable에 없는 상황.
-        Debug.LogError($"{type.Name}은 등록되지 않았습니다. UIPreloadTable SO을 확인해주세요");
+        // 이 아래는 메모리에 해당 UI가 없는 상황.
+        Debug.LogError($"{type.Name}은 등록되지 않았습니다. Addressables Label을 확인해주세요");
         return null;
     }
 
@@ -183,11 +201,26 @@ public class UIManager : MonoBehaviour
         // 캐싱된 view가 아니라면 무시.
         if(!loadedViews.TryGetValue(typeof(T), out var view)) return;
 
-        if(openedStack.Count > 0 && openedStack.Peek() == view)
+        if(view.IsModal && openedStack.Contains(view))
         {
-            view.Close();
-            PopFromStack();
-        }            
+            // 스택 안에 있을 때만 제거.
+            var temp = new Stack<UIView>();
+            while(openedStack.Count > 0)
+            {
+                var top = openedStack.Pop();
+                if(top == view)
+                    break;
+
+                temp.Push(top);
+            }
+
+            while(temp.Count > 0)
+                openedStack.Push(temp.Pop());
+
+            OnUIStackChanged?.Invoke(openedStack.Count > 0);
+        }
+
+        view.Close();
     }
 
     // 가장 마지막 UI 닫기.
@@ -232,6 +265,4 @@ public class UIManager : MonoBehaviour
             loadedHandles.Remove(type);
         }
     }
-
-#endregion
 }
