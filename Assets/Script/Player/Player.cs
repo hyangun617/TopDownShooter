@@ -33,8 +33,6 @@ public class Player : MonoBehaviour, IDamagable
         playerAttack.AttackDelay = attackDelay;
         playerAttack.AttackRange = attackRange;
 
-        UIManager.Instance.ReloadBind(playerAttack);
-
         currentHp = maxHp;
     }
 

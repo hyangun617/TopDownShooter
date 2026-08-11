@@ -1,42 +1,41 @@
-﻿using System.Collections;
-using System;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerAnimController))]
 public class PlayerAttack : MonoBehaviour, IAttackable
 {
     [Header("시각 효과 (Visuals)")]
-    [SerializeField] private Transform firePoint;                  // 총구 위치
-    [SerializeField] private LineRenderer bulletTrail;             // 궤적을 그릴 렌더러
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private LineRenderer bulletTrail;
 
-    private LayerMask attackableLayer;                              // 공격 가능 객체 필터링 레이어 마스크
+    private LayerMask attackableLayer;
     private PlayerAnimController animController;
     private WeaponData weaponData;
-    
-    // IAttackable
+
     public float AttackRange { get; set; }
     public float AttackDelay { get; set; }
     public float AttackDamage { get; set; }
 
-    // Weapon & Reload
-    private bool isWeaponReady = false;
-    private float currentloadTime;    
-    private float attackCooldown = 0f;                              // 공격 쿨다운.
-    private bool isFiring = false;                                  // 발사 여부.
-
-    [SerializeField] private int currentAmmo;
+    private int currentAmmo;
     public int CurrentAmmo => currentAmmo;
+    public int MaxAmmo => weaponData != null ? weaponData.magazineSize : 0;
 
-    public event Action ReloadAmmo;                                 // 재장전 이벤트.
+    private bool isReloading;
+    private float attackCooldown;
+    private bool isFireRequested;
+
+    public event Action<int> OnAmmoChanged;
+    public event Action isAmmoZero;
     public event Action OnReloadStart;
     public event Action<float> OnReloadProgress;
-    public event Action<int> OnReloadComplete;                      // 리로드 이벤트
-    private bool isReload = false;
-    private Coroutine reloadCoroutine;
+    public event Action OnReloadFailed;
+    public event Action<int> OnReloadComplete;
 
+    private Coroutine reloadCoroutine;
     private Coroutine flashRoutine;
 
-    // SFX
-    private AudioClip AttackSFX;
+    private AudioClip attackSfx;
 
     private void Awake()
     {
@@ -44,28 +43,25 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         animController = GetComponent<PlayerAnimController>();
     }
 
-    void Start()
+    private void Start()
     {
-        // 입력에 발사 함수 등록
-        InputManager.Instance.OnFire += OnFire;
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnFire += OnFire;
 
-        // 기본 값을 입력하지 않았다면 기본 값 설정.
         if (firePoint == null)
-            firePoint = this.transform;
+            firePoint = transform;
     }
 
-    void Update()
+    private void Update()
     {
-        // 이전 프레임부터 현재 프레임 사이의 수를 이용해 쿨타임 계산.
-        if(attackCooldown >= 0) attackCooldown -= Time.deltaTime;
-        if(currentloadTime >= 0) currentloadTime -= Time.deltaTime;
+        if (attackCooldown > 0f)
+            attackCooldown -= Time.deltaTime;
 
-        if (isWeaponReady&& isFiring && attackCooldown <= 0 && currentloadTime <= 0)
+        if (isFireRequested && attackCooldown <= 0f && !isReloading && weaponData != null)
         {
             PlayAttack();
-            animController.OnShoot();   
-        }  
-            
+            animController.OnShoot();
+        }
     }
 
     private void OnDestroy()
@@ -76,59 +72,57 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
     private void OnFire(FireEventArgs args)
     {
-        if (args.IsPressed)
-            isFiring = true;
-        else
-        {
-            isFiring = false;
-
-            // 몇 초 이상 눌렀는지 args 값의 holdDuration 값을 이용해 계산함.
-
-        }
+        isFireRequested = args.IsPressed;
     }
 
     public void TryReload()
     {
-        if(isReload) return;
-        if(currentAmmo >= weaponData.magazineSize)
+        if (weaponData == null || isReloading)
+            return;
 
-        CancelReload();
+        if (currentAmmo >= weaponData.magazineSize)
+            return;
+
+        if (reloadCoroutine != null)
+            StopCoroutine(reloadCoroutine);
 
         reloadCoroutine = StartCoroutine(ReloadRoutine());
     }
 
     private IEnumerator ReloadRoutine()
     {
-        isReload = true;
+        isReloading = true;
         OnReloadStart?.Invoke();
 
         float elapsed = 0f;
         float reloadTime = weaponData.reloadTime;
 
-        while(elapsed < reloadTime)
+        while (elapsed < reloadTime)
         {
             elapsed += Time.deltaTime;
-            float progress = Mathf.Clamp01(elapsed / reloadTime);
-            OnReloadProgress?.Invoke(progress);
+            OnReloadProgress?.Invoke(Mathf.Clamp01(elapsed / reloadTime));
             yield return null;
         }
 
         currentAmmo = weaponData.magazineSize;
-        isReload = false;
+        isReloading = false;
+        NotifyAmmoChange();
         OnReloadComplete?.Invoke(currentAmmo);
+        OnAmmoChanged?.Invoke(currentAmmo);
     }
 
     private void NotifyAmmoChange()
     {
-        OnReloadComplete?.Invoke(currentAmmo);
+        OnAmmoChanged?.Invoke(currentAmmo);
     }
 
     public void CancelReload()
     {
-        if(reloadCoroutine != null)
+        if (reloadCoroutine != null)
         {
             StopCoroutine(reloadCoroutine);
-            isReload = false;
+            reloadCoroutine = null;
+            isReloading = false;
         }
     }
 
@@ -140,75 +134,88 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         AttackRange = weaponData.range;
         AttackDelay = weaponData.fireRate;
         AttackDamage = weaponData.damage;
-        AttackSFX = weaponData.fireSFX;
+        attackSfx = weaponData.fireSFX;
         currentAmmo = weaponData.magazineSize;
 
         NotifyAmmoChange();
-        isWeaponReady = true;
+    }
+
+    private bool CheckAttackAvailable()
+    {
+        if (weaponData == null || isReloading)
+            return false;
+
+        if (currentAmmo <= 0)
+        {
+            Debug.Log("is Ammo Zero Invoke");
+            isAmmoZero?.Invoke();
+            return false;
+        }
+
+        return true;
     }
 
     public void PlayAttack()
-    {  
-        if(isReload) return;
-
-        if(currentAmmo <= 0)
+    {
+        if(!CheckAttackAvailable())
         {
-            ReloadAmmo?.Invoke();
+            OnReloadFailed?.Invoke();
             return;
-        }
+        }        
 
         currentAmmo--;
 
-        // Top-Down 이기 때문에 Y축 값은 무시함. 
-        // input Manager에서 마우스의 위치를 받아옴.
-        Vector3 ClickPoint = new Vector3(InputManager.Instance.mouseWorldPos.x, 0f, InputManager.Instance.mouseWorldPos.z);
+        Vector3 clickPoint = InputManager.Instance.mouseWorldPos;
+        clickPoint.y = 0f;
 
-        // fixed fire Postion
-        Vector3 fixedFirePosition = new Vector3(firePoint.position.x, 0f, firePoint.transform.position.z);
+        Vector3 firePosition = firePoint.position;
+        firePosition.y = 0f;
 
-        // 현재 플레이어의 위치부터 클릭 위치까지의 벡터를 단위 벡터화 시킴.
-        // 방향만을 남기기 위함.
-        Vector3 direction = (ClickPoint - fixedFirePosition).normalized;
+        Vector3 direction = (clickPoint - firePosition).normalized;
 
-        // 효과음 재생
-        GameManager.Instance.SoundMgr.PlaySfx(AttackSFX, worldPosition: this.firePoint.position);
+        if (attackSfx != null)
+            GameManager.Instance.SoundMgr.PlaySfx(attackSfx, worldPosition: firePoint.position);
 
-        // 궤적 활성화
-        bulletTrail.enabled = true;
-        bulletTrail.SetPosition(0, firePoint.transform.position);
-
-        // 플레이어의 위치에서 단위 벡터 direction의 방향으로 range 만큼의 사거리로 ray 발사. -> attackableLayer의 레이어만 감지함.
-        if(Physics.Raycast(firePoint.transform.position, direction, out RaycastHit otherHit, AttackRange, attackableLayer))
+        if (bulletTrail != null)
         {
-            // 상대방 객체의 충돌체를 읽어와 오브젝트를 감지함.
-            Vector3 lastPoint = new Vector3(otherHit.point.x, firePoint.transform.position.y, otherHit.point.z);
-            bulletTrail.SetPosition(1, lastPoint);
+            bulletTrail.enabled = true;
+            bulletTrail.SetPosition(0, firePoint.position);
+        }
 
-            if(otherHit.collider.TryGetComponent<IDamagable>(out var enemy))
-            {
+        Vector3 endPoint = firePoint.position + direction * AttackRange;
+
+        if (Physics.Raycast(firePoint.position, direction, out RaycastHit otherHit, AttackRange, attackableLayer))
+        {
+            Vector3 hitPosition = firePoint.position + direction * otherHit.distance;
+
+            if (bulletTrail != null)
+                bulletTrail.SetPosition(1, hitPosition);
+
+            if (otherHit.collider.TryGetComponent<IDamagable>(out var enemy))
                 enemy.TakeDamage(AttackDamage);
-            }
         }
-        else // 아무도 맞지 않은 경우
+        else
         {
-            Vector3 endPoint = firePoint.transform.position + direction * AttackRange;
-            bulletTrail.SetPosition(1, endPoint);
+            if (bulletTrail != null)
+                bulletTrail.SetPosition(1, endPoint);
         }
 
-        // 코루틴을 사용하여 0.05초만 라인이 보이도록 함.
-        // 이전에 이미 실행된 코루틴이 있다면, 종료하고 실행함.
-        if(flashRoutine != null) StopCoroutine(flashRoutine);        
+        if (flashRoutine != null)
+            StopCoroutine(flashRoutine);
+
         flashRoutine = StartCoroutine(FlashBulletTrail());
 
-        // 디버그 전용, 씬에서만 해당 라인이 보임.
-        Debug.DrawLine(firePoint.transform.position, bulletTrail.GetPosition(1), Color.red, 0.5f);
-        
+        Debug.DrawLine(firePoint.position, bulletTrail != null ? bulletTrail.GetPosition(1) : endPoint, Color.red, 0.5f);
+
         attackCooldown = AttackDelay;
         NotifyAmmoChange();
     }
 
     private IEnumerator FlashBulletTrail()
     {
+        if (bulletTrail == null)
+            yield break;
+
         bulletTrail.enabled = true;
         yield return new WaitForSeconds(0.05f);
         bulletTrail.enabled = false;

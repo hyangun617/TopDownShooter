@@ -8,11 +8,26 @@ public class InputManager : MonoBehaviour
     public static InputManager Instance { get; private set; }
     public bool IsInputEnabled { get; set; } = true;                // 입력 활성화 여부    
     public bool IsUIMode { get; private set; } = false;
-    
-#region Init
 
     public event Action OnInputInitialized;                 // InputManager 초기화 완료 이벤트
     public event Action<bool> OnInputModeChanged;           // true = UI Mode
+
+    private void Update()
+    {
+        // 입력 활성화 여부
+        if (!IsInputEnabled || IsUIMode) return;
+
+        UpdateMouseWorldPosition();
+
+        // 마우스 홀드 여부
+        if (inputSystem.Player.Fire.IsPressed())
+            fireHoldTime += Time.deltaTime;
+    }
+
+    private void OnDestroy()
+    {
+        if(Instance == this) Instance = null;
+    }
 
     // 참조 세팅
     private void Awake()
@@ -37,6 +52,10 @@ public class InputManager : MonoBehaviour
     {    
         cam = Camera.main;                                         // 메인 카메라 할당.
         groundLayer = LayerMask.GetMask("Ground");                  // 레이어 마스크 참조, 해당 이름으로 된 레이어가 지정된 순서를 읽어옴.
+
+        UIManager.Instance.OnUIStackChanged += HandleUIStackChanged;
+        SetUIMode(false);
+
         OnInputInitialized?.Invoke();                              // InputManager 초기화 완료 이벤트 호출.
     }
 
@@ -47,7 +66,7 @@ public class InputManager : MonoBehaviour
 
         IsUIMode = uiMode;
 
-        if(uiMode)
+        if(IsUIMode)
         {
             inputSystem.Player.Disable();
             inputSystem.UI.Enable();
@@ -60,7 +79,7 @@ public class InputManager : MonoBehaviour
             GameManager.Instance.ChangeState(GameState.Playing);
         }
 
-        OnInputModeChanged?.Invoke(uiMode);
+        OnInputModeChanged?.Invoke(IsUIMode);
     }
 
     private void OnEnable()
@@ -75,10 +94,7 @@ public class InputManager : MonoBehaviour
         inputSystem.Player.Cancel.performed += OnMenuKeyPressed;
         inputSystem.UI.Cancel.performed += OnUICancelPressed;
 
-        UIManager.Instance.OnUIStackChanged += HandleUIStackChanged;
-
         inputSystem.Player.Enable();
-        SetUIMode(false);
     }
 
     private void OnDisable()
@@ -93,16 +109,20 @@ public class InputManager : MonoBehaviour
         inputSystem.Player.Cancel.performed -= OnMenuKeyPressed;
         inputSystem.UI.Cancel.performed -= OnUICancelPressed;
 
-        UIManager.Instance.OnUIStackChanged -= HandleUIStackChanged;
+        if(UIManager.Instance != null)
+            UIManager.Instance.OnUIStackChanged -= HandleUIStackChanged;
     }
-
-#endregion
 
 #region UI
 
     private void HandleUIStackChanged(bool hasOpenedView)
     {
         SetUIMode(hasOpenedView);
+
+        if(hasOpenedView)
+        {
+            GameManager.Instance.ChangeState(GameState.Paused);
+        }
     }
 
     // Player Input Map에서 ESC -> 메뉴 화면 열기.
@@ -194,21 +214,4 @@ public class InputManager : MonoBehaviour
     }
 
 #endregion
-
-    private void Update()
-    {
-        // 입력 활성화 여부
-        if (!IsInputEnabled || IsUIMode) return;
-
-        UpdateMouseWorldPosition();
-
-        // 마우스 홀드 여부
-        if (inputSystem.Player.Fire.IsPressed())
-            fireHoldTime += Time.deltaTime;
-    }
-
-    private void OnDestroy()
-    {
-        if(Instance == this) Instance = null;
-    }
 }
