@@ -77,7 +77,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
     public void TryReload()
     {
-        if (weaponData == null || isReloading)
+        if (weaponData == null || isReloading)-----------
             return;
 
         if (currentAmmo >= weaponData.magazineSize)
@@ -159,7 +159,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     {
         if(!CheckAttackAvailable())
         {
-            OnReloadFailed?.Invoke();
+            OnReloadFailed?.Invoke();-------
             return;
         }        
 

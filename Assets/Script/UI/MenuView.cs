@@ -30,7 +30,7 @@ public class MenuView : UIView
 #region Method
     private void OpenSettingPanel()
     {
-        UIManager.Instance.OpenAsync<SettingView>().Forget();
+        UIManager.Instance.OpenAsync<SettingView>().Forget(ex => Debug.LogException(ex));
     }
 #endregion
 }

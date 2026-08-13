@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public SoundManager SoundMgr { get; private set; }
     public PoolManager PoolMgr { get; private set; }
     public SettingManager SettingMgr { get; private set; }
+    public LoadManager LoadMgr {get; private set;}
 
     // 게임 상태
     public GameState CurrentState { get; private set; }
@@ -27,7 +28,7 @@ public class GameManager : MonoBehaviour
 
     public void SetScore(int value) => score = value;
 
-    public async UniTaskVoid Init()
+    public void Init()
     {
         // 게임 매니저 초기화.
 
@@ -35,13 +36,11 @@ public class GameManager : MonoBehaviour
         DataMgr = new DataManager();
         SoundMgr = new SoundManager(this.transform);
         SettingMgr = new SettingManager(SoundMgr);
+        LoadMgr = new LoadManager();
         PoolMgr = gameObject.AddComponent<PoolManager>();      // MonoBehavior를 상속 받았기에 new 사용 불가.
 
         // 각 순수 C# 매니저 초기화
-        // await DataMgr.Init();
-        await UniTask.WhenAll(      // 임시 메서드
-            DataMgr.Init()
-        );
+        DataMgr.Init();
 
         Debug.Log("All Managers Ready");
     }

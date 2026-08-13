@@ -10,6 +10,8 @@ public class PlayerManager : MonoBehaviour
 
     private GameObject playerObj;
 
+    private HUDController hud;
+
     public static event Action<Transform> OnPlayerSpawned;
     public static event Action<GameObject> GetPlayerObjAfterSpawned;
 
@@ -21,17 +23,15 @@ public class PlayerManager : MonoBehaviour
     private void Start()
     {
         playerObj = SpawnPlayer();
-
-        UIManager.Instance.PreloadCompleted += BindPlayerAndHUD;
+        BindPlayerAndHUD();
+        hud.gameObject.SetActive(true);
     }
 
     private async void BindPlayerAndHUD()
     {
-        var hud = await UIManager.Instance.OpenAsync<HUDController>();
+        hud = await UIManager.Instance.OpenAsync<HUDController>();
 
         hud.Bind(playerObj.GetComponent<PlayerAttack>());
-
-        UIManager.Instance.PreloadCompleted -= BindPlayerAndHUD;
     }
 
     public GameObject SpawnPlayer()
