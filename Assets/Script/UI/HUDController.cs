@@ -152,7 +152,7 @@ public class HUDController : UIView
 
     private void OnPauseButton()
     {
-        UIManager.Instance.OpenAsync<MenuView>().Forget();
+        UIManager.Instance.OpenAsync<MenuView>().Forget(ex => Debug.LogException(ex));
     }
 
 #endregion

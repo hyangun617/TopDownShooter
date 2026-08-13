@@ -64,7 +64,7 @@ public class MeleeEnemy : Enemy
 
     protected override void LoadEnemyData(int id)
     {
-        Stat = GameManager.Instance.DataMgr.meleeEnemyTB.GetEnemyDataById(id);
+        Stat = GameManager.Instance.DataMgr.Get<EnemyTB>("GameData_Melee_Enemy_TB").GetEnemyDataById(id);
 
         meleeAttack.AttackDamage = Stat.AttackPoint;
         meleeAttack.AttackRange = Stat.AttackRange;

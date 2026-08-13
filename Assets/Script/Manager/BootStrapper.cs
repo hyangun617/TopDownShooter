@@ -26,10 +26,10 @@ public class BootStrapper : MonoBehaviour
         uiManager.RegisterAsInstance();
         inputManager.RegisterAsInstance();
         
-        gameManager.Init().Forget();
+        gameManager.Init();
         inputManager.Init();
 
-        InitializeUIAsync().Forget();
+        InitializeUIAsync().Forget(ex => Debug.LogException(ex));
     }
 
     private async UniTask InitializeUIAsync()

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class MainMenu : MonoBehaviour
 {
@@ -23,12 +24,12 @@ public class MainMenu : MonoBehaviour
 
     private void OnStartClicked()
     {
-        
+        GameManager.Instance.LoadMgr.SceneLoad("Game_Scene").Forget(ex => Debug.LogException(ex));
     }
 
     private void OnSettingClicked()
     {
-        
+        UIManager.Instance.OpenAsync<SettingView>().Forget(ex => Debug.LogException(ex));
     }
 
     // 게임 종료

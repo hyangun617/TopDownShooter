@@ -65,6 +65,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ed3846b5ef5da194795ee085f9ef062a, type: 2}
   - {fileID: 11400000, guid: 677e8813a9e9de94bb8dce68b888d682, type: 2}
   - {fileID: 11400000, guid: a56d69ae6ab7c7a4baa9dabd6a4a971a, type: 2}
+  - {fileID: 11400000, guid: 680500f7adbe91c409d8f1894556c94f, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -107,6 +108,7 @@ MonoBehaviour:
     - GameData
     - CombatAssets
     - UI
+    - PrefabList
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b57470fc08c157f46ba1cadb39b9a81b, type: 2}

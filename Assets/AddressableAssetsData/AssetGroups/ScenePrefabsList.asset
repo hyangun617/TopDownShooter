@@ -10,32 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: UI
+  m_Name: ScenePrefabsList
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
-  m_GroupName: UI
-  m_GUID: a267516425620be4696188f5bdbf2f78
+  m_GroupName: ScenePrefabsList
+  m_GUID: c4d7889f6d176344db31680d2f8d162e
   m_SerializeEntries:
-  - m_GUID: 8ac48841817a4bf42a21f5ddfa21213f
-    m_Address: UI/Menu
+  - m_GUID: 45e499a950839614caa62f875449ffce
+    m_Address: Game_Scene
     m_ReadOnly: 0
     m_SerializedLabels:
-    - UI
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ac29cff1bf6d80f4b9409d60d68d7f69
-    m_Address: UI/HUD
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - UI
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c09e388f99aa52f4985d00843fd389a2
-    m_Address: UI/Setting
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - UI
+    - PrefabList
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: eaa7e560f6f08ef4e9b315110fd4452c, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 5129f3c6706dfb74a8f5ad7682784a53, type: 2}
-    - {fileID: 11400000, guid: c768114453635fa4fa3666526c756f6a, type: 2}
+    - {fileID: 11400000, guid: ce9f0d781eece5e4ca56166933b566ff, type: 2}
+    - {fileID: 11400000, guid: b499d4d2597140946884d33ff4aff529, type: 2}

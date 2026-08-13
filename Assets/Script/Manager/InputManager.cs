@@ -128,7 +128,7 @@ public class InputManager : MonoBehaviour
     // Player Input Map에서 ESC -> 메뉴 화면 열기.
     private void OnMenuKeyPressed(InputAction.CallbackContext ctx)
     {
-        UIManager.Instance.OpenAsync<MenuView>().Forget();
+        UIManager.Instance.OpenAsync<MenuView>().Forget(ex => Debug.LogException(ex));
     }
 
     // UI Input Map에서 ESC -> UI 닫기.

@@ -62,9 +62,21 @@ public class UIManager : MonoBehaviour
     {
         canvasRoot = root;
 
-        foreach(var view in loadedViews.Values)
+        var deadTypes = new List<Type>();
+        foreach(var kv in loadedViews)
         {
-            view.transform.SetParent(canvasRoot, false);
+            if(kv.Value == null) { deadTypes.Add(kv.Key); continue; }
+            kv.Value.transform.SetParent(canvasRoot, false);
+        }
+
+        foreach(var type in deadTypes)
+        {
+            loadedViews.Remove(type);
+            if(loadedHandles.TryGetValue(type, out var handle))
+            {
+                Addressables.Release(handle);
+                loadedHandles.Remove(type);
+            }
         }
 
         Debug.Log("CanvasRoot 할당 완료");
@@ -106,7 +118,7 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        var view = Instantiate(handle.Result, canvasRoot).GetComponent<UIView>();
+        var view = Instantiate(handle.Result, this.transform).GetComponent<UIView>();
         if(view == null)
         {
             Debug.LogError($"{location.PrimaryKey} 프리팹에 UIView 컴포넌트가 없습니다.");
@@ -228,6 +240,18 @@ public class UIManager : MonoBehaviour
     {
         if (openedStack.Count == 0) return;
         PopFromStack().Close();
+    }
+
+    // 모든 View를 자신의 아래로 옮기기
+    public void DetachFromCanvas()
+    {
+        foreach(var view in loadedViews.Values)
+        {
+            if (view == null) continue;
+            view.transform.SetParent(this.transform, false);
+        }
+
+        canvasRoot = null;
     }
 
     // UI 등록 해제.

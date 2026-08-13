@@ -87,7 +87,7 @@ public class RangeEnemy : Enemy
     // 원거리 데이터 테이블에서 Id 값으로 스탯 값 로드
     protected override void LoadEnemyData(int id)
     {
-        Stat = GameManager.Instance.DataMgr.rangeEnemyTB.GetEnemyDataById(id);
+        Stat = GameManager.Instance.DataMgr.Get<EnemyTB>("GameData_Range_Enemy_TB").GetEnemyDataById(id);
 
         rangeAttack.AttackDamage = Stat.AttackPoint;
         rangeAttack.AttackDelay = Stat.AttackDelay;
