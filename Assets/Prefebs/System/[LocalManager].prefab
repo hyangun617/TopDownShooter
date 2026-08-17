@@ -146,7 +146,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5116700649528857454
 Transform:
   m_ObjectHideFlags: 0
@@ -187,7 +187,7 @@ MonoBehaviour:
   maxAttemps: 3
   ObstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
 --- !u!1 &1462919635764470873
 GameObject:
   m_ObjectHideFlags: 0
@@ -232,8 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f85a144a282c9040968e7ddb6578f48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  table: {fileID: 11400000, guid: 36db35c974a592a4ab7f5f25c908f91b, type: 2}
-  hudController: {fileID: 0}
   canvasRoot: {fileID: 0}
 --- !u!1 &4483172352149165381
 GameObject:

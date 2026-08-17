@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance { get; private set; }
 
-    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform spawnPoint;
 
     private GameObject playerObj;
@@ -23,25 +23,34 @@ public class PlayerManager : MonoBehaviour
     private void Start()
     {
         playerObj = SpawnPlayer();
-        BindPlayerAndHUD();
-        hud.gameObject.SetActive(true);
+        BindPlayerAndHUD().Forget(ex => Debug.LogException(ex));
     }
 
-    private async void BindPlayerAndHUD()
+    private async UniTask BindPlayerAndHUD()
     {
         hud = await UIManager.Instance.OpenAsync<HUDController>();
 
         hud.Bind(playerObj.GetComponent<PlayerAttack>());
+
+        hud.gameObject.SetActive(true);
     }
 
     public GameObject SpawnPlayer()
     {
-        var PlayerObject = Instantiate(playerPrefab, spawnPoint.position, Quaternion.identity);
+        var PlayerObject = GameManager.Instance.DataMgr.Get<GameObject>("Player");
 
-        OnPlayerSpawned?.Invoke(PlayerObject.transform);
+        if(PlayerObject == null)
+        {
+            Debug.Log("[PlayerManager] 'Player'프리팹을 캐시에서 찾을 수 없습니다.");
+            return null;
+        }
+
+        var instance = Instantiate(PlayerObject, spawnPoint.position, Quaternion.identity);
+
+        OnPlayerSpawned?.Invoke(instance.transform);
         Debug.Log("Player Spawned");
-        GetPlayerObjAfterSpawned?.Invoke(PlayerObject);
+        GetPlayerObjAfterSpawned?.Invoke(instance);
 
-        return PlayerObject;
+        return instance;
     }
 }

@@ -4,7 +4,6 @@ public class PlayerAnimController : MonoBehaviour
 {
     private Animator animator;
     private RuntimeAnimatorController defaultController;
-    private WeaponManager weaponManager;
 
     public Animator Anim => animator;
 
@@ -24,7 +23,6 @@ public class PlayerAnimController : MonoBehaviour
     void Awake()
     {
         animator = GetComponent<Animator>();
-        weaponManager = GetComponent<WeaponManager>();
         upperBodyLayerIndex = animator.GetLayerIndex("Upper Body");
         defaultController = animator.runtimeAnimatorController;
     }
@@ -43,14 +41,12 @@ public class PlayerAnimController : MonoBehaviour
         animator.SetBool(IsMovedHash, isMoved);
     }
 
-    public void OnReload()
+    public float OnReload()
     {
-        // 리로드 애니메이션 호출 및 SFX
+        // 리로드 애니메이션 호출
         animator.SetTrigger(IsReloadHash);
         float animLength = GetCurrentAnimLength(upperBodyLayerIndex);
-        float SfxLength = weaponManager.WeaponData.reloadSFX.length;
-        float pitch = Mathf.Clamp(SfxLength / animLength, 0.8f, 1.5f);
-        GameManager.Instance.SoundMgr.PlaySfx(weaponManager.WeaponData.reloadSFX, followTarget: this.transform, pitch: pitch);
+        return animLength;
     }
 
     public void OnShoot() => animator.SetTrigger(IsShootHash);

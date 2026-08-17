@@ -31,7 +31,7 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
     {
         bulletData = ScriptableObject.CreateInstance<BulletData>();
 
-        bulletPrefeb = GameManager.Instance.DataMgr.Get<GameObject>("CombatAssets_Bullet");
+        bulletPrefeb = GameManager.Instance.DataMgr.Get<GameObject>("Bullet");
         prefabLoaded = bulletPrefeb != null;
 
         AttackSpeed = attackSpeed;

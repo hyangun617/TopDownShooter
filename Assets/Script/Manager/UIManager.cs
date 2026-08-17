@@ -143,6 +143,7 @@ public class UIManager : MonoBehaviour
             if(existing.IsModal && !openedStack.Contains(existing))
                 PushToStack(existing);
             
+            existing.transform.SetAsLastSibling();
             existing.Open();            
             return existing as T;
         }
@@ -162,6 +163,7 @@ public class UIManager : MonoBehaviour
                 if(loaded.IsModal && !openedStack.Contains(loaded))
                     PushToStack(loaded);
 
+                loaded.transform.SetAsLastSibling();
                 loaded.Open();
             }
 
@@ -182,6 +184,7 @@ public class UIManager : MonoBehaviour
                 if(reloaded.IsModal && !openedStack.Contains(reloaded))
                     PushToStack(reloaded);
 
+                reloaded.transform.SetAsLastSibling();
                 reloaded.Open();
             }
 
