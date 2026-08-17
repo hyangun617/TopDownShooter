@@ -16,13 +16,13 @@ MonoBehaviour:
   m_GUID: 1292521a0a81df2449f80e960c31315f
   m_SerializeEntries:
   - m_GUID: 36f67884cb744e94da6efcdef1dca705
-    m_Address: Assets/Prefebs/Enemy/Melee_Enemy_TB.asset
+    m_Address: Melee_Enemy_TB
     m_ReadOnly: 0
     m_SerializedLabels:
     - GameData
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: af2055affc724bf4bb643e34a08991e2
-    m_Address: Assets/Prefebs/Enemy/Range_Enemy_TB.asset
+    m_Address: Range_Enemy_TB
     m_ReadOnly: 0
     m_SerializedLabels:
     - GameData

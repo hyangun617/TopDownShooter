@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27aceffe3fbfb7143bf25d7502ec6bf5, type: 3}
   m_Name: GameSceneTB
   m_EditorClassIdentifier: Assembly-CSharp::ScenePrefabs
-  LabelList:
-  - UI
-  - CombatAssets
-  - GameData
+  sceneName: 
+  list:
+  - type: 1
+    label: UI
+  - type: 1
+    label: CombatAssets
+  - type: 3
+    label: GameData

@@ -66,11 +66,6 @@ public class Bullet : MonoBehaviour, IPoolable
         gameObject.SetActive(true);
     }
 
-    public void OnDespawn()
-    {
-        
-    }
-
     // 충돌 판정 이후 초기화.
     private void ResetBullet()
     {
@@ -86,5 +81,10 @@ public class Bullet : MonoBehaviour, IPoolable
 
         // 이후 풀로 반환 로직.
         GameManager.Instance.PoolMgr.Release(gameObject);
+    }
+
+    public void OnDespawn()
+    {
+        
     }
 }

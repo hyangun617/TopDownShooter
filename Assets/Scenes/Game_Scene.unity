@@ -653,6 +653,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: '[LocalManager]'
       objectReference: {fileID: 0}
+    - target: {fileID: 1085076318870079538, guid: 39bf2424f44f4e646a7993b3b324d023, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1989468055090113261, guid: 39bf2424f44f4e646a7993b3b324d023, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.35595

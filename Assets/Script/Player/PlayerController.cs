@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(PlayerAnimController), typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour
@@ -8,8 +9,10 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;      
     private PlayerAnimController playerAnimController;
     private PlayerAttack playerAttack;
+    private WeaponManager weaponManager;
 
     [SerializeField] private bool isOnReload = false;
+    [SerializeField] private bool isAbleReload = false;
 
     private float moveSpeed;
 
@@ -17,7 +20,8 @@ public class PlayerController : MonoBehaviour
     {
         playerAttack.isAmmoZero += OnReload;
         playerAttack.OnReloadComplete += OnReloadComplete;
-        playerAttack.OnReloadFailed += OnReloadComplete;
+        playerAttack.OnReloadFailed += OnReloadFail;
+        playerAttack.OnAmmoChanged += OnAbleReload;
         InputManager.Instance.OnMove += OnMove;
         InputManager.Instance.OnPressed_R += OnReload;
     }
@@ -26,7 +30,8 @@ public class PlayerController : MonoBehaviour
     {
         playerAttack.isAmmoZero -= OnReload;
         playerAttack.OnReloadComplete -= OnReloadComplete;
-        playerAttack.OnReloadFailed -= OnReloadComplete;
+        playerAttack.OnReloadFailed -= OnReloadFail;
+        playerAttack.OnAmmoChanged -= OnAbleReload;
         InputManager.Instance.OnMove -= OnMove;
         InputManager.Instance.OnPressed_R -= OnReload;
     }
@@ -37,6 +42,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerAnimController = GetComponent<PlayerAnimController>();
         playerAttack = GetComponent<PlayerAttack>();
+        weaponManager = GetComponent<WeaponManager>();
     }
 
     // 초기값을 받아오는 메서드
@@ -90,18 +96,42 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnAbleReload(int ammo)
+    {
+        if(ammo < weaponManager.WeaponData.magazineSize)
+        {
+            isAbleReload = true;
+        }
+        else
+        {
+            isAbleReload = false;
+        }
+    }
+
     private void OnReload()
     {
-        if(isOnReload) return;
-        SetOnReloadState(true);
+        if(!isAbleReload) return;           // 재장전 가능 여부 확인
+        if(isOnReload) return;              // 재장전 중인지 확인
+        isOnReload = true;
 
         // 리로드 메서드
-        playerAnimController.OnReload();      
+        float animLength = playerAnimController.OnReload();      
+        float SfxLength = weaponManager.WeaponData.reloadSFX.length;
+        float pitch = Mathf.Clamp(SfxLength / animLength, 0.8f, 1.5f);
+        GameManager.Instance.SoundMgr.PlaySfx(weaponManager.WeaponData.reloadSFX, followTarget: this.transform, pitch: pitch);
         playerAttack.TryReload();
     }
 
-    private void OnReloadComplete(int val) => isOnReload = false;
-    private void OnReloadComplete() => isOnReload = false;
+    private void OnReloadComplete(int val)
+    {
+        isOnReload = false;
+        isAbleReload = false;
+    }
+
+    private void OnReloadFail()
+    {
+        isOnReload = false;
+    }
 
     private void OnDestroy()
     {
@@ -118,12 +148,4 @@ public class PlayerController : MonoBehaviour
             moveInput = input;
         }        
     }
-
-    private void SetOnReloadState(bool state)
-    {
-        if(isOnReload == state) return;
-
-        isOnReload = state;
-    }
-
 }

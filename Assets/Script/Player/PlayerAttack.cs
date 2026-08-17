@@ -25,12 +25,12 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     private float attackCooldown;
     private bool isFireRequested;
 
-    public event Action<int> OnAmmoChanged;
-    public event Action isAmmoZero;
-    public event Action OnReloadStart;
-    public event Action<float> OnReloadProgress;
-    public event Action OnReloadFailed;
-    public event Action<int> OnReloadComplete;
+    public event Action isAmmoZero;                     // 장탄 0
+    public event Action<int> OnAmmoChanged;             // 장탄 상황 변경   int = 장탄 값
+    public event Action OnReloadStart;                  // 재장전 시작
+    public event Action<float> OnReloadProgress;        // 재장전 중        float = 진행도
+    public event Action OnReloadFailed;                 // 재장전 실패
+    public event Action<int> OnReloadComplete;          // 재장전 완료      int = 장탄 값
 
     private Coroutine reloadCoroutine;
     private Coroutine flashRoutine;
@@ -77,14 +77,20 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
     public void TryReload()
     {
-        if (weaponData == null || isReloading)-----------
+        if (weaponData == null || 
+            currentAmmo >= weaponData.magazineSize ||
+            isReloading)
+        {   
+            // reload 실패
+            OnReloadFailed?.Invoke();
             return;
-
-        if (currentAmmo >= weaponData.magazineSize)
-            return;
+        }
 
         if (reloadCoroutine != null)
+        {
             StopCoroutine(reloadCoroutine);
+        }
+            
 
         reloadCoroutine = StartCoroutine(ReloadRoutine());
     }
@@ -122,6 +128,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         {
             StopCoroutine(reloadCoroutine);
             reloadCoroutine = null;
+            OnReloadFailed?.Invoke();
             isReloading = false;
         }
     }
@@ -159,7 +166,7 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     {
         if(!CheckAttackAvailable())
         {
-            OnReloadFailed?.Invoke();-------
+            OnReloadFailed?.Invoke();
             return;
         }        
 

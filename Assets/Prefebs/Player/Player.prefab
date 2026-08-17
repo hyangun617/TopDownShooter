@@ -400,6 +400,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9620236223fb80c429136dce4f9e8b4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  isOnReload: 0
+  isAbleReload: 0
 --- !u!114 &7527496519236760703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -414,7 +416,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
   firePoint: {fileID: 0}
   bulletTrail: {fileID: 8028805483547377467}
-  currentAmmo: 0
 --- !u!114 &5165492705941699107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,7 +442,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponManager
   currentWeapon: {fileID: 11400000, guid: 8572e9fc9fac1df47817ffed3f41384f, type: 2}
   playerAnimController: {fileID: 5165492705941699107}
-  playerAttack: {fileID: 0}
+  playerAttack: {fileID: 7527496519236760703}
   weaponSocket: {fileID: 4960699431910950540}
 --- !u!1 &1054971951605049747
 GameObject:
