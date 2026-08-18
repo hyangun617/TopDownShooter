@@ -20,3 +20,5 @@ MonoBehaviour:
     label: CombatAssets
   - type: 3
     label: GameData
+  - type: 0
+    label: SFX

@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1989468055090113261}
+  - component: {fileID: 5088204826603791001}
   m_Layer: 0
   m_Name: '[LocalManager]'
   m_TagString: Untagged
@@ -33,9 +34,20 @@ Transform:
   - {fileID: 849046087498832828}
   - {fileID: 4126087561801463453}
   - {fileID: 7342873018081960311}
-  - {fileID: 3752754886685897091}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5088204826603791001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434681047386946377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2881aae1c4c97b34093b112f810cd73d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &626481858854936383
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,7 +92,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff740bc7ebb07b4d838a14da932ee25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerManager
-  playerPrefab: {fileID: 991995178901289088, guid: e8df3af2162cb4548a04ca103b4f6f11, type: 3}
   spawnPoint: {fileID: 7342873018081960311}
 --- !u!1 &855368865341351301
 GameObject:
@@ -188,51 +199,6 @@ MonoBehaviour:
   ObstacleLayerMask:
     serializedVersion: 2
     m_Bits: 8
---- !u!1 &1462919635764470873
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3752754886685897091}
-  - component: {fileID: 4618674507144952328}
-  m_Layer: 0
-  m_Name: UIManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3752754886685897091
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1462919635764470873}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1989468055090113261}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4618674507144952328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1462919635764470873}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f85a144a282c9040968e7ddb6578f48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  canvasRoot: {fileID: 0}
 --- !u!1 &4483172352149165381
 GameObject:
   m_ObjectHideFlags: 0
