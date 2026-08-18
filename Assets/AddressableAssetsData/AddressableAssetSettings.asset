@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 83c2d30d30b9fca4b9007fbe22a804fe
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: bd96c5ede8600c139d57543b8e23cc00
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 1
   m_CatalogRequestsTimeout: 0
@@ -66,6 +66,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 677e8813a9e9de94bb8dce68b888d682, type: 2}
   - {fileID: 11400000, guid: a56d69ae6ab7c7a4baa9dabd6a4a971a, type: 2}
   - {fileID: 11400000, guid: 680500f7adbe91c409d8f1894556c94f, type: 2}
+  - {fileID: 11400000, guid: fa2c54104746e9e44a137c03c179a09d, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -109,6 +110,7 @@ MonoBehaviour:
     - CombatAssets
     - UI
     - PrefabList
+    - SFX
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: b57470fc08c157f46ba1cadb39b9a81b, type: 2}

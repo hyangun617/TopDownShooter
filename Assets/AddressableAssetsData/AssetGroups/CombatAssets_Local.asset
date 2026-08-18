@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - CombatAssets
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c8cbbc0374ad8341a0ebe317cb63a15
+    m_Address: Handgun_Prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 669157a2e71eb0e479e48fbd4cc01bfc
     m_Address: Range_Skeleton_Enemy
     m_ReadOnly: 0
@@ -33,8 +39,26 @@ MonoBehaviour:
     m_SerializedLabels:
     - CombatAssets
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8572e9fc9fac1df47817ffed3f41384f
+    m_Address: Rifle
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92c89ccd23e13f1409b31234e929d268
+    m_Address: Rifle_Prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e8df3af2162cb4548a04ca103b4f6f11
     m_Address: PlayerPref
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CombatAssets
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff48a48920ae4964b93da74a7571c416
+    m_Address: Handgun
     m_ReadOnly: 0
     m_SerializedLabels:
     - CombatAssets

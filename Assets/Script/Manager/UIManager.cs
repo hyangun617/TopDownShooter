@@ -28,7 +28,7 @@ public class UIManager : MonoBehaviour
 
     public void Init()
     {
-
+        
     }
 
     private void OnEnable()
@@ -44,7 +44,17 @@ public class UIManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if(canvasRoot == null)
+        {
+            var canvas = FindFirstObjectByType<Canvas>();
+            if(canvas != null)
+            {
+                SetCanvasRoot(canvas.transform);
+                return;
+            }
+
             Debug.LogWarning($"[UIManager] {scene.name}에 UICanvasRoot가 없습니다");
+            return;
+        }            
     }
 
     public void RegisterAsInstance()
@@ -118,7 +128,10 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        var view = Instantiate(handle.Result, this.transform).GetComponent<UIView>();
+        var canvas = canvasRoot != null ? canvasRoot : FindFirstObjectByType<Canvas>()?.transform;
+        var parent = canvas != null ? canvas : this.transform;
+
+        var view = Instantiate(handle.Result, parent).GetComponent<UIView>();
         if(view == null)
         {
             Debug.LogError($"{location.PrimaryKey} 프리팹에 UIView 컴포넌트가 없습니다.");

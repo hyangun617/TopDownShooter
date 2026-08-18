@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class UICanvasRoot : MonoBehaviour
 {
-    void Start()
+    void Awake()
     {
         SetCanvasRoot();
     }
