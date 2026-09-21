@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// 무기 장착 : 애니메이션 교체, 무기 데이터 적용, 모델 / 발사 지점 / 장착 SFX 처리.
 public class WeaponManager : MonoBehaviour
 {
     [SerializeField] private WeaponData currentWeapon;
@@ -11,57 +12,46 @@ public class WeaponManager : MonoBehaviour
 
     private GameObject currentWeaponInstance;
 
-    void Start()
+    private void Start()
     {
-        if(playerAnimController == null)
-        {
+        if (playerAnimController == null)
             playerAnimController = GetComponent<PlayerAnimController>();
-        }
-        if(playerAttack == null)
-        {
-            playerAttack = GetComponent<PlayerAttack>();
-        }
 
-        if(currentWeapon != null)
-        {
+        if (playerAttack == null)
+            playerAttack = GetComponent<PlayerAttack>();
+
+        if (currentWeapon != null)
             EquipWeapon(currentWeapon);
-        }
     }
 
     public void EquipWeapon(WeaponData newWeapon)
     {
+        currentWeapon = newWeapon;
+
         // 애니메이션 교체
         playerAnimController.EquipWeaponAnimation(newWeapon);
 
         playerAttack.SetWeaponData(newWeapon);
 
         // 기존 모델 제거
-        if(currentWeaponInstance != null)
-        {
+        if (currentWeaponInstance != null)
             Destroy(currentWeaponInstance);
-        }
 
         // 새 모델 장착
-        if(newWeapon.weaponPrefab != null)
+        if (newWeapon.weaponPrefab != null)
         {
             currentWeaponInstance = Instantiate(newWeapon.weaponPrefab, weaponSocket);
             currentWeaponInstance.transform.localPosition = newWeapon.gripPositionOffset;
             currentWeaponInstance.transform.localRotation = Quaternion.Euler(newWeapon.gripRotationOffset);
-            currentWeaponInstance.transform.localScale = newWeapon.gripScaleOffset;        
-            
+            currentWeaponInstance.transform.localScale = newWeapon.gripScaleOffset;
+
             WeaponFirePoint marker = currentWeaponInstance.GetComponentInChildren<WeaponFirePoint>();
-            if(marker != null)
-            {
+            if (marker != null)
                 playerAttack.SetFirePoint(marker.transform);
-            }
         }
 
         // 장착 SFX
-        if(newWeapon.equipSFX != null)
-        {
-            GameManager.Instance.SoundMgr.PlaySfx(newWeapon.equipSFX, followTarget: this.transform);
-        }
-
-        currentWeapon = newWeapon;
+        if (newWeapon.equipSFX != null)
+            GameManager.Instance.SoundMgr.PlaySfx(newWeapon.equipSFX, followTarget: transform);
     }
 }

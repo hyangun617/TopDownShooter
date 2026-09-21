@@ -1,45 +1,32 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
-public class UnitRangeAttack : MonoBehaviour, IAttackable
+public class UnitRangeAttack : UnitAttack
 {
-    // IAttackable 인터페이스 멤버 
-    public float AttackDamage { get; set; }
-    public float AttackRange { get; set; }
-    public float AttackDelay { get; set; }
     public float AttackSpeed = 2f;
 
     // 공격 시작 지점
     public Transform firePoint;
 
-    // 공격 대상 레이어 마스크
-    public LayerMask targetLayerMask;
-
     // 탄환 프리펩
-    private GameObject bulletPrefeb;
+    private GameObject bulletPrefab;
     private BulletData bulletData;
-    private bool prefabLoaded = false;
-
-    // 공격 여부
-    private bool isAttacking = false;
-
-    // SFX
-    private List<AudioClip> attackSFX;
 
     public void Initialize(float attackSpeed)
     {
-        bulletData = ScriptableObject.CreateInstance<BulletData>();
+        // 풀링으로 OnSpawn 이 반복 호출되므로 ScriptableObject 는 한 번만 생성.
+        if (bulletData == null)
+            bulletData = ScriptableObject.CreateInstance<BulletData>();
 
-        bulletPrefeb = GameManager.Instance.DataMgr.Get<GameObject>("Bullet");
-        prefabLoaded = bulletPrefeb != null;
-
+        bulletPrefab = GameManager.Instance.DataMgr.Get<GameObject>("Bullet");
         AttackSpeed = attackSpeed;
     }
 
-    public void PlayAttack()
+    // 공격 실행 메서드. (애니메이션 이벤트에서 직접 호출됨)
+    public override void PlayAttack()
     {
-        if(!prefabLoaded) return;
+        if (bulletPrefab == null) return;
+
+        StartCooldown();
 
         // 탄환 정보 초기화
         bulletData.damage = AttackDamage;
@@ -47,42 +34,24 @@ public class UnitRangeAttack : MonoBehaviour, IAttackable
         bulletData.speed = AttackSpeed;
         bulletData.Piercing = false;
 
-        // 원거리 공격 메서드
-        StartCoroutine(OnRangeAttacking());
-        
-        // 발사 방향
-        Vector3 dir = transform.forward.normalized; 
-
-        GameObject bulletObj = GameManager.Instance.PoolMgr.Get(bulletPrefeb);
-
+        GameObject bulletObj = GameManager.Instance.PoolMgr.Get(bulletPrefab);
         bulletObj.transform.SetPositionAndRotation(firePoint.position, firePoint.rotation);
 
-        if(bulletObj.TryGetComponent<Bullet>(out var spawnedBullet))
+        if (bulletObj.TryGetComponent<Bullet>(out var spawnedBullet))
         {
-            GameManager.Instance.SoundMgr.PlaySfx(attackSFX[Random.Range(0, attackSFX.Count)], clipVolume: 0.5f, followTarget: transform, pitch: 1.5f);
-            spawnedBullet.ShootBullet(bulletData, firePoint.position, dir, targetLayerMask);
-        }  
+            PlayAttackSfx(followTarget: transform, clipVolume: 0.5f, pitch: 1.5f);
+            spawnedBullet.ShootBullet(bulletData, firePoint.position, transform.forward.normalized, TargetLayerMask);
+        }
     }
-
-    private IEnumerator OnRangeAttacking()
-    {
-        isAttacking = true;
-        yield return new WaitForSeconds(AttackDelay);
-        isAttacking = false;
-    }
-
-    public void SetAttackSFX(List<AudioClip> source) => attackSFX = source;
 
 #if UNITY_EDITOR
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        if(isAttacking)
-        {
-            Gizmos.color = Color.red;
-            Vector3 start = firePoint.position;
-            Vector3 end = start + transform.forward * AttackRange;
-            Gizmos.DrawLine(start, end);    
-        }        
+        if (!IsCoolingDown || firePoint == null) return;
+
+        Gizmos.color = Color.red;
+        Vector3 start = firePoint.position;
+        Gizmos.DrawLine(start, start + transform.forward * AttackRange);
     }
 #endif
 }

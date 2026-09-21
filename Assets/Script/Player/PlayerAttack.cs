@@ -1,28 +1,24 @@
-﻿using System;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
+// 플레이어의 무기 공격(히트스캔) + 탄약 / 재장전 관리.
 [RequireComponent(typeof(PlayerAnimController))]
-public class PlayerAttack : MonoBehaviour, IAttackable
+public class PlayerAttack : UnitAttack
 {
     [Header("시각 효과 (Visuals)")]
     [SerializeField] private Transform firePoint;
     [SerializeField] private LineRenderer bulletTrail;
 
-    private LayerMask attackableLayer;
     private PlayerAnimController animController;
     private WeaponData weaponData;
-
-    public float AttackRange { get; set; }
-    public float AttackDelay { get; set; }
-    public float AttackDamage { get; set; }
 
     private int currentAmmo;
     public int CurrentAmmo => currentAmmo;
     public int MaxAmmo => weaponData != null ? weaponData.magazineSize : 0;
 
     private bool isReloading;
-    private float attackCooldown;
     private bool isFireRequested;
 
     public event Action isAmmoZero;                     // 장탄 0
@@ -35,11 +31,11 @@ public class PlayerAttack : MonoBehaviour, IAttackable
     private Coroutine reloadCoroutine;
     private Coroutine flashRoutine;
 
-    private AudioClip attackSfx;
+    private const float TrailDuration = 0.05f;
 
     private void Awake()
     {
-        attackableLayer = LayerMask.GetMask("Attackable");
+        TargetLayerMask = LayerMask.GetMask("Attackable");
         animController = GetComponent<PlayerAnimController>();
     }
 
@@ -54,13 +50,10 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
     private void Update()
     {
-        if (attackCooldown > 0f)
-            attackCooldown -= Time.deltaTime;
-
-        if (isFireRequested && attackCooldown <= 0f && !isReloading && weaponData != null)
+        if (isFireRequested && !IsCoolingDown && !isReloading && weaponData != null)
         {
             PlayAttack();
-            animController.OnShoot();
+            animController.AttackTrigger();
         }
     }
 
@@ -75,22 +68,20 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         isFireRequested = args.IsPressed;
     }
 
+    #region Reload
+
     public void TryReload()
     {
-        if (weaponData == null || 
+        if (weaponData == null ||
             currentAmmo >= weaponData.magazineSize ||
             isReloading)
-        {   
-            // reload 실패
+        {
             OnReloadFailed?.Invoke();
             return;
         }
 
         if (reloadCoroutine != null)
-        {
             StopCoroutine(reloadCoroutine);
-        }
-            
 
         reloadCoroutine = StartCoroutine(ReloadRoutine());
     }
@@ -112,26 +103,23 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
         currentAmmo = weaponData.magazineSize;
         isReloading = false;
-        NotifyAmmoChange();
-        OnReloadComplete?.Invoke(currentAmmo);
-        OnAmmoChanged?.Invoke(currentAmmo);
-    }
+        reloadCoroutine = null;
 
-    private void NotifyAmmoChange()
-    {
         OnAmmoChanged?.Invoke(currentAmmo);
+        OnReloadComplete?.Invoke(currentAmmo);
     }
 
     public void CancelReload()
     {
-        if (reloadCoroutine != null)
-        {
-            StopCoroutine(reloadCoroutine);
-            reloadCoroutine = null;
-            OnReloadFailed?.Invoke();
-            isReloading = false;
-        }
+        if (reloadCoroutine == null) return;
+
+        StopCoroutine(reloadCoroutine);
+        reloadCoroutine = null;
+        isReloading = false;
+        OnReloadFailed?.Invoke();
     }
+
+    #endregion
 
     public void SetFirePoint(Transform newFirePoint) => firePoint = newFirePoint;
 
@@ -141,10 +129,10 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         AttackRange = weaponData.range;
         AttackDelay = weaponData.fireRate;
         AttackDamage = weaponData.damage;
-        attackSfx = weaponData.fireSFX;
+        SetAttackSFX(new List<AudioClip> { weaponData.fireSFX });
         currentAmmo = weaponData.magazineSize;
 
-        NotifyAmmoChange();
+        OnAmmoChanged?.Invoke(currentAmmo);
     }
 
     private bool CheckAttackAvailable()
@@ -154,7 +142,6 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
         if (currentAmmo <= 0)
         {
-            Debug.Log("is Ammo Zero Invoke");
             isAmmoZero?.Invoke();
             return false;
         }
@@ -162,16 +149,17 @@ public class PlayerAttack : MonoBehaviour, IAttackable
         return true;
     }
 
-    public void PlayAttack()
+    public override void PlayAttack()
     {
-        if(!CheckAttackAvailable())
+        if (!CheckAttackAvailable())
         {
             OnReloadFailed?.Invoke();
             return;
-        }        
+        }
 
         currentAmmo--;
 
+        // 발사 방향 : 마우스 위치를 향해 수평으로.
         Vector3 clickPoint = InputManager.Instance.mouseWorldPos;
         clickPoint.y = 0f;
 
@@ -180,51 +168,46 @@ public class PlayerAttack : MonoBehaviour, IAttackable
 
         Vector3 direction = (clickPoint - firePosition).normalized;
 
-        if (attackSfx != null)
-            GameManager.Instance.SoundMgr.PlaySfx(attackSfx, worldPosition: firePoint.position);
+        PlayAttackSfx(worldPosition: firePoint.position);
 
-        if (bulletTrail != null)
-        {
-            bulletTrail.enabled = true;
-            bulletTrail.SetPosition(0, firePoint.position);
-        }
-
+        // 히트스캔 판정
         Vector3 endPoint = firePoint.position + direction * AttackRange;
-
-        if (Physics.Raycast(firePoint.position, direction, out RaycastHit otherHit, AttackRange, attackableLayer))
+        if (Physics.Raycast(firePoint.position, direction, out RaycastHit hit, AttackRange, TargetLayerMask))
         {
-            Vector3 hitPosition = firePoint.position + direction * otherHit.distance;
+            endPoint = firePoint.position + direction * hit.distance;
 
-            if (bulletTrail != null)
-                bulletTrail.SetPosition(1, hitPosition);
+            if (hit.collider.TryGetComponent<IDamagable>(out var target))
+                target.TakeDamage(AttackDamage);
+        }
 
-            if (otherHit.collider.TryGetComponent<IDamagable>(out var enemy))
-                enemy.TakeDamage(AttackDamage);
-        }
-        else
-        {
-            if (bulletTrail != null)
-                bulletTrail.SetPosition(1, endPoint);
-        }
+        ShowBulletTrail(endPoint);
+        Debug.DrawLine(firePoint.position, endPoint, Color.red, 0.5f);
+
+        StartCooldown();
+        OnAmmoChanged?.Invoke(currentAmmo);
+    }
+
+    #region Visual
+
+    private void ShowBulletTrail(Vector3 endPoint)
+    {
+        if (bulletTrail == null) return;
+
+        bulletTrail.SetPosition(0, firePoint.position);
+        bulletTrail.SetPosition(1, endPoint);
 
         if (flashRoutine != null)
             StopCoroutine(flashRoutine);
 
         flashRoutine = StartCoroutine(FlashBulletTrail());
-
-        Debug.DrawLine(firePoint.position, bulletTrail != null ? bulletTrail.GetPosition(1) : endPoint, Color.red, 0.5f);
-
-        attackCooldown = AttackDelay;
-        NotifyAmmoChange();
     }
 
     private IEnumerator FlashBulletTrail()
     {
-        if (bulletTrail == null)
-            yield break;
-
         bulletTrail.enabled = true;
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(TrailDuration);
         bulletTrail.enabled = false;
     }
+
+    #endregion
 }

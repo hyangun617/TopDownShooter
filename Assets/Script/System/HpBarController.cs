@@ -1,44 +1,31 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// 부모 계층의 UnitHealth 를 구독해 체력 게이지를 갱신한다. (Player / Enemy 공용)
 public class HpBarController : MonoBehaviour
 {
     [SerializeField] private Image gaugeImage;
-    public float currentFill = 1.0f;
-    public float speed = 5.0f;
 
-    private Player target;
-    private float maxHp;
-    [SerializeField] private float currentHp;
+    private UnitHealth health;
 
-    private void Awake()
+    // UnitHealth.Initialize 가 구독자를 초기화하므로, 모든 Awake 가 끝난 뒤인 Start 에서 구독한다.
+    private void Start()
     {
-        // 플레이어가 소환되면 이벤트를 연결하는 메서드 연결.
-        PlayerManager.GetPlayerObjAfterSpawned += LinkedEvent;
+        health = GetComponentInParent<UnitHealth>();
+        if (health == null) return;
+
+        health.OnHpChanged += Refresh;
+        Refresh(health.CurrentHp, health.MaxHp);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        target.onTakeDamage -= ChangeHpBar;
+        if (health != null)
+            health.OnHpChanged -= Refresh;
     }
 
-    private void ChangeHpBar(float value)
+    private void Refresh(float currentHp, float maxHp)
     {
-        currentHp -= value;
-        gaugeImage.fillAmount = currentHp / maxHp;
-    }
-
-    // 플레이어가 스폰되면 이벤트를 연결함.
-    private void LinkedEvent(GameObject player)
-    {
-        if(player.TryGetComponent<Player>(out var value))
-        {
-            target = value;
-            target.onTakeDamage += ChangeHpBar;
-            maxHp = target.MaxHp;
-            currentHp = target.MaxHp;
-        }
-
-        PlayerManager.GetPlayerObjAfterSpawned -= LinkedEvent;
+        gaugeImage.fillAmount = maxHp > 0f ? currentHp / maxHp : 0f;
     }
 }

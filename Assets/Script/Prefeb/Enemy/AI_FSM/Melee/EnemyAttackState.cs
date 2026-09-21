@@ -49,7 +49,7 @@ public class EnemyAttackState : EnemyBaseState<MeleeEnemy>
         dir.y = 0f;
         dir.Normalize();
 
-        enemy.transform.rotation = Quaternion.LookRotation(dir);
+        enemy.Rotate(dir);
 
         // 플레이어와의 거리를 구함.
         float dist = Vector3.Distance(myPos, targetPos);

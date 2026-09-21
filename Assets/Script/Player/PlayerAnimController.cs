@@ -1,13 +1,11 @@
 using UnityEngine;
 
-public class PlayerAnimController : MonoBehaviour
+// UnitAnimController 에 플레이어 전용 동작(이동 블렌딩, 재장전, 무기별 애니메이션)을 추가한 컴포넌트.
+public class PlayerAnimController : UnitAnimController
 {
-    private Animator animator;
     private RuntimeAnimatorController defaultController;
 
-    public Animator Anim => animator;
-
-    // 애니메이션 파라미터
+    // 플레이어 애니메이터의 파라미터
     private static readonly int SpeedHash = Animator.StringToHash("Speed");
     private static readonly int MoveForwardHash = Animator.StringToHash("Forward");
     private static readonly int MoveRightHash = Animator.StringToHash("Right");
@@ -20,36 +18,38 @@ public class PlayerAnimController : MonoBehaviour
     // 애니메이션 보간 값.
     private const float DampTime = 0.1f;
 
-    void Awake()
+    // 공용 동작(SetMoveState / AttackTrigger)이 플레이어 파라미터를 사용하도록 교체.
+    protected override int MoveParam => IsMovedHash;
+    protected override int AttackParam => IsShootHash;
+
+    protected override void Awake()
     {
-        animator = GetComponent<Animator>();
+        base.Awake();
+
         upperBodyLayerIndex = animator.GetLayerIndex("Upper Body");
         defaultController = animator.runtimeAnimatorController;
     }
 
-    void Start()
+    private void Start()
     {
         animator.SetLayerWeight(upperBodyLayerIndex, 1f);
     }
 
     public void UpdateMoveParams(Vector3 localMove, float moveSpeedNormalized, bool isMoved)
     {
-        // 애니메이터 파라미터 수정
         animator.SetFloat(SpeedHash, moveSpeedNormalized, DampTime, Time.deltaTime);
         animator.SetFloat(MoveForwardHash, localMove.z, DampTime, Time.deltaTime);
         animator.SetFloat(MoveRightHash, localMove.x, DampTime, Time.deltaTime);
-        animator.SetBool(IsMovedHash, isMoved);
+        SetMoveState(isMoved);
     }
 
+    // 재장전 애니메이션을 재생하고, 그 길이를 반환.
     public float OnReload()
     {
-        // 리로드 애니메이션 호출
         animator.SetTrigger(IsReloadHash);
-        float animLength = GetCurrentAnimLength(upperBodyLayerIndex);
-        return animLength;
+        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(upperBodyLayerIndex);
+        return info.length / animator.speed;
     }
-
-    public void OnShoot() => animator.SetTrigger(IsShootHash);
 
     public void EquipWeaponAnimation(WeaponData weaponData)
     {
@@ -59,11 +59,5 @@ public class PlayerAnimController : MonoBehaviour
                 : defaultController;
 
         animator.SetLayerWeight(upperBodyLayerIndex, 1f);
-    }
-
-    private float GetCurrentAnimLength(int layerIndex)
-    {
-        AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(layerIndex);
-        return info.length / animator.speed;
     }
 }

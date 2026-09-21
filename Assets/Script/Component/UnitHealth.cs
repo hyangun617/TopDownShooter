@@ -2,20 +2,19 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-using Random = UnityEngine.Random;
-
-public class UnitHealth : MonoBehaviour, IDamagable 
+public class UnitHealth : MonoBehaviour, IDamagable
 {
     [SerializeField] private float currentHp;
     private float maxHp;
+    private bool isDead;
 
     public float CurrentHp => currentHp;
-    public bool IsDead => currentHp <= 0;
+    public float MaxHp => maxHp;
+    public bool IsDead => isDead;
 
-    public event Action<float> OnDamaged;           // 데미지를 입었을 때 이벤트
-    public event Action OnDeath;                    // 사망 시점 : 한번만 호출됨.
-
-    private bool isDead = false;
+    public event Action<float> OnDamaged;               // 데미지를 입었을 때 : 현재 체력
+    public event Action<float, float> OnHpChanged;      // 체력이 변했을 때(피해 / 회복) : 현재 체력, 최대 체력
+    public event Action OnDeath;                        // 사망 시점 : 한번만 호출됨.
 
     // SFX
     private List<AudioClip> damagedSFX;
@@ -32,6 +31,7 @@ public class UnitHealth : MonoBehaviour, IDamagable
 
         // 오브젝트 풀링 시 이전 구독자가 남아있지 않도록 초기화.
         OnDamaged = null;
+        OnHpChanged = null;
         OnDeath = null;
     }
 
@@ -40,20 +40,29 @@ public class UnitHealth : MonoBehaviour, IDamagable
         if (isDead) return;         // 중복 사망 처리 방지
 
         currentHp -= value;
-        // 데미지 효과음 출력.
-        GameManager.Instance.SoundMgr.PlaySfx(damagedSFX[Random.Range(0, damagedSFX.Count)], clipVolume: 0.5f, followTarget: this.transform);
+        PlaySfx(damagedSFX);
 
-        // 이벤트 호출.
         OnDamaged?.Invoke(currentHp);
+        OnHpChanged?.Invoke(currentHp, maxHp);
 
-        if(currentHp <= 0)
+        if (currentHp <= 0)
         {
             isDead = true;
-            // 죽음 효과음 출력
-            GameManager.Instance.SoundMgr.PlaySfx(deathSFX[Random.Range(0, deathSFX.Count)], clipVolume: 0.5f, followTarget: this.transform);
-
-            // 죽음 이벤트 호출
-            OnDeath?.Invoke();      // 사망 이벤트 발생.
+            PlaySfx(deathSFX);
+            OnDeath?.Invoke();
         }
+    }
+
+    public void Heal(float value)
+    {
+        if (isDead) return;
+
+        currentHp = Mathf.Min(currentHp + value, maxHp);
+        OnHpChanged?.Invoke(currentHp, maxHp);
+    }
+
+    private void PlaySfx(List<AudioClip> clips)
+    {
+        GameManager.Instance.SoundMgr.PlaySfx(clips.PickRandom(), clipVolume: 0.5f, followTarget: transform);
     }
 }
