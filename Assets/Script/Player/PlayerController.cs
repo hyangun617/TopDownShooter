@@ -1,128 +1,104 @@
-﻿using System;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerAnimController), typeof(PlayerAttack))]
+// 플레이어의 입력 처리 : 이동 / 조준 / 재장전.
+// 실제 이동과 회전은 UnitController 에 위임한다.
+[RequireComponent(typeof(UnitController), typeof(PlayerAnimController), typeof(PlayerAttack))]
 public class PlayerController : MonoBehaviour
 {
-    // 플레이어 객체
-    private Rigidbody rb;              
-    private Vector2 moveInput;      
-    private PlayerAnimController playerAnimController;
+    private UnitController unitController;
+    private PlayerAnimController animController;
     private PlayerAttack playerAttack;
     private WeaponManager weaponManager;
+
+    private Vector2 moveInput;
+    private float moveSpeed;
 
     [SerializeField] private bool isOnReload = false;
     [SerializeField] private bool isAbleReload = false;
 
-    private float moveSpeed;
-
-    void OnEnable()
-    {
-        playerAttack.isAmmoZero += OnReload;
-        playerAttack.OnReloadComplete += OnReloadComplete;
-        playerAttack.OnReloadFailed += OnReloadFail;
-        playerAttack.OnAmmoChanged += OnAbleReload;
-        InputManager.Instance.OnMove += OnMove;
-        InputManager.Instance.OnPressed_R += OnReload;
-    }
-
-    void OnDisable()
-    {
-        playerAttack.isAmmoZero -= OnReload;
-        playerAttack.OnReloadComplete -= OnReloadComplete;
-        playerAttack.OnReloadFailed -= OnReloadFail;
-        playerAttack.OnAmmoChanged -= OnAbleReload;
-        InputManager.Instance.OnMove -= OnMove;
-        InputManager.Instance.OnPressed_R -= OnReload;
-    }
-
     private void Awake()
     {
-        // GameObject에 등록된 컴포넌트를 받아옴.
-        rb = GetComponent<Rigidbody>();
-        playerAnimController = GetComponent<PlayerAnimController>();
+        unitController = GetComponent<UnitController>();
+        animController = GetComponent<PlayerAnimController>();
         playerAttack = GetComponent<PlayerAttack>();
         weaponManager = GetComponent<WeaponManager>();
     }
 
     // 초기값을 받아오는 메서드
-    public void Init(float moveSpeed)
+    public void Initialize(float moveSpeed)
     {
         this.moveSpeed = moveSpeed;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void OnEnable()
     {
-        if(InputManager.Instance == null ) return;
+        playerAttack.isAmmoZero += OnReload;
+        playerAttack.OnReloadComplete += OnReloadComplete;
+        playerAttack.OnReloadFailed += OnReloadFail;
+        playerAttack.OnAmmoChanged += OnAbleReload;
+
+        if (InputManager.Instance == null) return;
+        InputManager.Instance.OnMove += OnMove;
+        InputManager.Instance.OnPressed_R += OnReload;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDisable()
     {
-        // 컨트롤러가 활성화 되어 있을 때만 회전.
-        if (InputManager.Instance != null && InputManager.Instance.IsInputEnabled)
-        {
-            LookAtMouse();
+        playerAttack.isAmmoZero -= OnReload;
+        playerAttack.OnReloadComplete -= OnReloadComplete;
+        playerAttack.OnReloadFailed -= OnReloadFail;
+        playerAttack.OnAmmoChanged -= OnAbleReload;
 
-            // 로컬 좌표계 전환
-            // 캐릭터가 바라보는 기준으로한 로컬 좌표계
-            Vector3 localMove = transform.InverseTransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
-            bool isMoved = moveInput.magnitude > 0;
+        // 컨트롤러가 꺼지면(사망 등) 입력이 사라지므로 이동도 멈춘다.
+        unitController.StopMoving();
 
-            playerAnimController.UpdateMoveParams(localMove, moveSpeed / 10f, isMoved);
-        }        
+        if (InputManager.Instance == null) return;
+        InputManager.Instance.OnMove -= OnMove;
+        InputManager.Instance.OnPressed_R -= OnReload;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        // 입력 값에 따라 단위 벡터를 받아옴.
-        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
+        if (InputManager.Instance == null || !InputManager.Instance.IsInputEnabled) return;
 
-        rb.MovePosition(rb.position + move * moveSpeed * Time.fixedDeltaTime);
+        unitController.LookAt(InputManager.Instance.mouseWorldPos);
+
+        // 캐릭터가 바라보는 기준의 로컬 좌표계로 전환
+        Vector3 localMove = transform.InverseTransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
+        bool isMoved = moveInput.magnitude > 0;
+
+        animController.UpdateMoveParams(localMove, moveSpeed / 10f, isMoved);
     }
 
-    private void LookAtMouse()
+    private void OnMove(Vector2 input)
     {
-        Vector3 targetPos = InputManager.Instance.mouseWorldPos;
-        Vector3 Direction = targetPos - rb.position;
-        // y 좌표 값은 무시.
-        Direction.y = 0f;
+        if (!InputManager.Instance.IsInputEnabled) return;
 
-        if(Direction != Vector3.zero)
-        {
-            // 마우스를 향해 회전.
-            rb.rotation = Quaternion.LookRotation(Direction);
-        }
+        moveInput = input;
+        unitController.Move(new Vector3(input.x, 0, input.y), moveSpeed);
     }
 
     private void OnAbleReload(int ammo)
     {
-        if(ammo < weaponManager.WeaponData.magazineSize)
-        {
-            isAbleReload = true;
-        }
-        else
-        {
-            isAbleReload = false;
-        }
+        isAbleReload = ammo < playerAttack.MaxAmmo;
     }
 
     private void OnReload()
     {
-        if(!isAbleReload) return;           // 재장전 가능 여부 확인
-        if(isOnReload) return;              // 재장전 중인지 확인
+        if (!isAbleReload) return;           // 재장전 가능 여부 확인
+        if (isOnReload) return;              // 재장전 중인지 확인
         isOnReload = true;
 
-        // 리로드 메서드
-        float animLength = playerAnimController.OnReload();      
-        float SfxLength = weaponManager.WeaponData.reloadSFX.length;
-        float pitch = Mathf.Clamp(SfxLength / animLength, 0.8f, 1.5f);
-        GameManager.Instance.SoundMgr.PlaySfx(weaponManager.WeaponData.reloadSFX, followTarget: this.transform, pitch: pitch);
+        // 재장전 애니메이션 길이에 맞춰 효과음 피치를 조정.
+        float animLength = animController.OnReload();
+        AudioClip reloadSfx = weaponManager.WeaponData.reloadSFX;
+        float pitch = Mathf.Clamp(reloadSfx.length / animLength, 0.8f, 1.5f);
+        GameManager.Instance.SoundMgr.PlaySfx(reloadSfx, followTarget: transform, pitch: pitch);
+
         playerAttack.TryReload();
     }
 
-    private void OnReloadComplete(int val)
+    private void OnReloadComplete(int ammo)
     {
         isOnReload = false;
         isAbleReload = false;
@@ -131,21 +107,5 @@ public class PlayerController : MonoBehaviour
     private void OnReloadFail()
     {
         isOnReload = false;
-    }
-
-    private void OnDestroy()
-    {
-        if (InputManager.Instance == null) return;
-
-        InputManager.Instance.OnMove -= OnMove;
-        InputManager.Instance.OnPressed_R -= OnReload;
-    }
-
-    void OnMove(Vector2 input)
-    {
-        if (InputManager.Instance.IsInputEnabled)
-        {
-            moveInput = input;
-        }        
     }
 }

@@ -273,6 +273,8 @@ GameObject:
   - component: {fileID: 7527496519236760703}
   - component: {fileID: 5165492705941699107}
   - component: {fileID: 5733863377842846174}
+  - component: {fileID: 4820113570022837701}
+  - component: {fileID: 4820113570022837702}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -383,11 +385,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
   maxHp: 100
-  currentHp: 0
   attackDamage: 10
   attackDelay: 0.5
   attackRange: 50
   moveSpeed: 10
+--- !u!114 &4820113570022837701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991995178901289088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91fed5477d1324a4497e315409bfa290, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitHealth
+  currentHp: 0
+--- !u!114 &4820113570022837702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991995178901289088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e40a0f90656bba240807663740e9fda3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitController
 --- !u!114 &3117347224518072429
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,10 +1,5 @@
-using System.Collections;
-using UnityEngine;
-
 public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
 {
-    private Coroutine releaseRoutine;
-
     public EnemyDeadState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
@@ -15,16 +10,8 @@ public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
         enemy.StopMoving();
         enemy.DeathTrigger();
 
-        // 5초후 비활성화.
-        releaseRoutine = enemy.StartCoroutine(ReleaseAfterDelay());
-    }
-
-    private IEnumerator ReleaseAfterDelay()
-    {
-        yield return new WaitForSeconds(5f);
-        
-        // 매니저 풀에 반환.
-        enemy.ReturnToPool();
+        // 사망 연출 후 풀에 반환.
+        enemy.ScheduleRelease();
     }
 
     public override void Update()
@@ -35,8 +22,5 @@ public class EnemyDeadState : EnemyBaseState<MeleeEnemy>
     public override void Exit()
     {
         // 상태 종료 로직
-        // 만약 코루틴이 실행 중이라면 종료.
-        if(releaseRoutine != null)
-            enemy.StopCoroutine(releaseRoutine);
     }
 }

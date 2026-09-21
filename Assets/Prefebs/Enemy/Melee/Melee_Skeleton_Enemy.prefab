@@ -206,7 +206,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f2751f3851099654498f98c7092e129a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UnitMeleeAtack
+  m_EditorClassIdentifier: Assembly-CSharp::UnitMeleeAttack
   attackWidth: 1
   attackHeight: 1
 --- !u!114 &3324764392772599991

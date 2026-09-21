@@ -13,7 +13,6 @@ public class PlayerManager : MonoBehaviour
     private HUDController hud;
 
     public static event Action<Transform> OnPlayerSpawned;
-    public static event Action<GameObject> GetPlayerObjAfterSpawned;
 
     private void Awake()
     {
@@ -49,7 +48,6 @@ public class PlayerManager : MonoBehaviour
 
         OnPlayerSpawned?.Invoke(instance.transform);
         Debug.Log("Player Spawned");
-        GetPlayerObjAfterSpawned?.Invoke(instance);
 
         return instance;
     }

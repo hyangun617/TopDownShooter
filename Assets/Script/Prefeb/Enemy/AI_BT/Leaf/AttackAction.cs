@@ -9,7 +9,7 @@ public class AttackAction : LeafNode
 
     public override NodeState Tick()
     {
-        if(!blackboard.TryGetValue<RangeEnemy>(BlackboardKeys.Self, out RangeEnemy self))
+        if(!blackboard.TryGetValue<Enemy>(BlackboardKeys.Self, out Enemy self))
         {
             return NodeState.Failure;
         }

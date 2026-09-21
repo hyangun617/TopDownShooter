@@ -12,7 +12,7 @@ public class CheckAttackDelay : LeafNode
 
     public override NodeState Tick()
     {
-        if(!blackboard.TryGetValue<RangeEnemy>(BlackboardKeys.Self, out var self))
+        if(!blackboard.TryGetValue<Enemy>(BlackboardKeys.Self, out _))
         {
             return NodeState.Failure;
         }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
 {
     private Coroutine detectCoroutine;
-    private static readonly WaitForSeconds detecInterval = new WaitForSeconds(1f);
+    private static readonly WaitForSeconds DetectInterval = new WaitForSeconds(1f);
     public EnemyIdleState(MeleeEnemy enemy, EnemyStateMachine<MeleeEnemy> stateMachine, EnemyFSM_Context context) : base(enemy, stateMachine, context)
     {
         // 상태 초기화
@@ -43,7 +43,7 @@ public class EnemyIdleState : EnemyBaseState<MeleeEnemy>
     {
         while (true)
         {
-            yield return detecInterval; // 1초(인터벌)마다 플레이어 감지
+            yield return DetectInterval; // 1초(인터벌)마다 플레이어 감지
 
             // 플레이어 감지 로직
             // DetectRange 내에 플레이어가 있는지 확인함.

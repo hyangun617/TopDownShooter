@@ -1,24 +1,22 @@
 using System;
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-[RequireComponent(typeof(UnitAnimController), typeof(UnitHealth), typeof(UnitController))]
-public abstract class Enemy : MonoBehaviour, IPoolable
+public abstract class Enemy : Unit, IPoolable
 {
-    // 유닛 컴포넌트
-    protected UnitHealth health;
-    protected UnitController controller;
-    protected UnitAnimController animController;
-
     // 자신의 풀 프리팹 참조
     public GameObject SourcePrefab { get; set; }
     private bool isSetup = false;
 
     public static event Action<Enemy> OnAnyEnemyDeath;      // 어느 enemy객체의 죽음 알림.
+
+    // 풀에 반환되기 전 사망 연출을 보여주는 시간.
+    private const float ReleaseDelay = 5f;
 
     // 데이터 값을 지정할 Id;
     [Header("Read Stat Data Table Id")]
@@ -48,53 +46,59 @@ public abstract class Enemy : MonoBehaviour, IPoolable
     public float AttackDelay => Stat.AttackDelay;
     public float DetectRange => Stat.DetectRange;
     public float MoveSpeed => Stat.MovementSpeed;
-    public Vector3 Position => controller.Position;
-
 
     // 디버깅용 멤버
     [Header("Debug")]
     public Color bcolor = Color.green;
 
-    // 데이터 로드를 위한 추상 메서드
-    protected abstract void LoadEnemyData(int id);
-    public abstract void TakeDamage(float value);
+    // 스탯을 읽어올 데이터 테이블의 키.
+    protected abstract string StatTableKey { get; }
 
-    protected virtual void Awake()
+    // 사망 시 종류별 연출 (FSM 상태 전환, BT 정지 등). 점수 / 사망 알림은 Enemy가 공통 처리한다.
+    protected abstract void HandleDeath();
+
+    protected override void Awake()
     {
-        health = GetComponent<UnitHealth>();
-        controller = GetComponent<UnitController>();
-        animController = GetComponent<UnitAnimController>();
+        base.Awake();
 
         // 레이어 마스크 미할당 시 폴백.
-        if(targetLayerMask.value == 0)
-        {
+        if (targetLayerMask.value == 0)
             targetLayerMask = LayerMask.GetMask("Player");
-        }
+
+        if (obstacleLayerMask.value == 0)
+            obstacleLayerMask = LayerMask.GetMask("Environment");
     }
 
+    // 풀에서 꺼내질 때 호출. 자식 클래스는 base.OnSpawn() 이후 자신의 초기화를 이어서 한다.
     public virtual void OnSpawn()
     {
-        
+        health.Initialize(Stat.MaxHp);
+        controller.Initialize();
+        animController.Initialize();
+
+        health.OnDeath += OnHealthDeath;
+        health.OnDamaged += HandleDamaged;
     }
 
     public virtual void OnDespawn()
     {
-        
+        health.OnDeath -= OnHealthDeath;
+        health.OnDamaged -= HandleDamaged;
     }
 
     public void EnsureSetup()
     {
-        if(isSetup) return;
-        
+        if (isSetup) return;
+
         RunWhenDataReady(SetupEnemy);
         isSetup = true;
     }
 
-    // GameManager의 DataManager가 초기화 되었는지 확인하고, 초기화가 완료되었으면 SetupEnemy()를 호출. 
-    // 아니면 OnDataInitialized 이벤트에 SetupEnemy()를 등록.
+    // GameManager의 DataManager가 초기화 되었는지 확인하고, 초기화가 완료되었으면 callback을 호출.
+    // 아니면 OnDataInitialized 이벤트에 callback을 등록.
     protected void RunWhenDataReady(Action callback)
     {
-        if(GameManager.Instance.DataMgr.IsDataInitialized)
+        if (GameManager.Instance.DataMgr.IsDataInitialized)
             callback();
         else
         {
@@ -103,29 +107,40 @@ public abstract class Enemy : MonoBehaviour, IPoolable
             {
                 GameManager.Instance.DataMgr.OnDataInitialized -= Handler;
                 callback();
-            }   
+            }
             GameManager.Instance.DataMgr.OnDataInitialized += Handler;
-        }            
+        }
     }
 
-    // 자식 객체는 이 메서드를 오버라이드하여 EnemyData를 로드하고, 현재 체력을 최대 체력으로 초기화 할 수 있다.
+    // 데이터 테이블에서 스탯을 읽어 각 컴포넌트에 적용한다. 자식 객체는 오버라이드하여 추가 초기화를 할 수 있다.
     protected virtual void SetupEnemy()
     {
-        // EnemyData를 로드하고 현재 체력을 최대 체력으로 초기화
-        LoadEnemyData(unitId);
+        Stat = GameManager.Instance.DataMgr.Get<EnemyTB>(StatTableKey).GetEnemyDataById(unitId);
 
-        // 컴포넌트들 초기화 로직.
-        health.Initialize(Stat.MaxHp);
         health.SetDamageSFX(damageSFX);
-        health.SetDeathSFX(deathSFX); 
+        health.SetDeathSFX(deathSFX);
 
-        controller.Initialize();
-        animController.Initialize();
+        attack.AttackDamage = Stat.AttackPoint;
+        attack.AttackRange = Stat.AttackRange;
+        attack.AttackDelay = Stat.AttackDelay;
+        attack.TargetLayerMask = targetLayerMask;
+        attack.SetAttackSFX(attackSFX);
     }
 
-    public void NotifyDeath()
+    private void OnHealthDeath()
     {
+        HandleDeath();
+
+        // 할당 점수 +
+        GameManager.Instance.SetScore(GameManager.Instance.Score + Stat.Score);
+
         OnAnyEnemyDeath?.Invoke(this);
+    }
+
+    // 피격 시 반응.
+    protected virtual void HandleDamaged(float currentHp)
+    {
+        animController.TakeDamaged();
     }
 
     public void ReturnToPool()
@@ -133,27 +148,25 @@ public abstract class Enemy : MonoBehaviour, IPoolable
         GameManager.Instance.PoolMgr.Release(gameObject);
     }
 
-    // 위임 메서드
-    // Controller
-    public void MoveToward(Vector3 targetPosition, float speed) => controller.MoveToward(targetPosition, speed);
-    public void StopMoving() => controller.StopMoving();
-    public void Rotate(Vector3 dir) => controller.Rotate(dir);    
-    
-    // Animator
-    public void SetMoveState(bool state) => animController.SetMoveState(state);
-    public void AttackTrigger() => animController.AttackTrigger();
-    public void DeathTrigger() => animController.DeathTrigger();
+    // 일정 시간 뒤 풀에 반환. (비활성화되면 코루틴이 함께 종료되므로 별도 취소는 필요 없음)
+    public void ScheduleRelease()
+    {
+        StartCoroutine(ReleaseAfterDelay());
+    }
+
+    private IEnumerator ReleaseAfterDelay()
+    {
+        yield return new WaitForSeconds(ReleaseDelay);
+        ReturnToPool();
+    }
 
     // 디버깅용 범위 표시
 #if UNITY_EDITOR
     protected virtual void OnDrawGizmos()
     {
         // 감지 범위 표시
-        // 선 색상 지정
         Handles.color = bcolor;
-
-        // 원 그리기
-        Handles.DrawWireDisc(transform.position, Vector3.up, Stat.DetectRange);  
+        Handles.DrawWireDisc(transform.position, Vector3.up, Stat.DetectRange);
 
         // 공격 범위 표시
         Handles.color = Color.blue;
