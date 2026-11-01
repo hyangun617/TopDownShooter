@@ -44,12 +44,17 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawnLoop());
+        // DataManager에서 Enemy Prefab 데이터 값을 읽어옴.
+        // 추가하는 값이 많아질 경우 Scriptable Object로 교체.
+        enemyPrefab.Add(GameManager.Instance.DataMgr.Get<GameObject>("Melee_Skeleton_Enemy"));
+        enemyPrefab.Add(GameManager.Instance.DataMgr.Get<GameObject>("Range_Skeleton_Enemy"));
 
         for (int i = 0; i < enemyPrefab.Count; i++)
         {
             isCanSpawnIndex.Add(true);
         }
+
+        StartCoroutine(SpawnLoop());
     }
 
     private void OnEnable()

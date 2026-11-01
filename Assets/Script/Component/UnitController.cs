@@ -65,4 +65,16 @@ public class UnitController : MonoBehaviour
         direction.y = 0f;
         Rotate(direction);
     }
+
+    // 물리 설정
+    public void SetPhysicsActive(bool active)
+    {
+        if(!active)
+        {
+            StopMoving();
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+        rb.isKinematic = !active;
+    }
 }

@@ -7,7 +7,8 @@ public enum PrefabType
     AudioClip,
     GameObject,
     Material,
-    EnemyTB
+    EnemyTB,
+    DropTable
 }
 
 [Serializable]

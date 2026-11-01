@@ -36,7 +36,8 @@ public class LoadManager
             {PrefabType.AudioClip, label => GameManager.Instance.DataMgr.LoadLabelAsync<AudioClip>(label)},
             {PrefabType.GameObject, label => GameManager.Instance.DataMgr.LoadLabelAsync<GameObject>(label)},
             {PrefabType.Material, label => GameManager.Instance.DataMgr.LoadLabelAsync<Material>(label)},
-            {PrefabType.EnemyTB, label => GameManager.Instance.DataMgr.LoadLabelAsync<EnemyTB>(label)}
+            {PrefabType.EnemyTB, label => GameManager.Instance.DataMgr.LoadLabelAsync<EnemyTB>(label)},
+            {PrefabType.DropTable, label => GameManager.Instance.DataMgr.LoadLabelAsync<DropTable>(label)}
         };
     }
     
