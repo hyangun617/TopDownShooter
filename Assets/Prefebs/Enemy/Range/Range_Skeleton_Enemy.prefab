@@ -243,9 +243,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitRangeAttack
   AttackSpeed: 2
   firePoint: {fileID: 3151188217379585847}
-  targetLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &3041481745455724154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,6 +268,7 @@ MonoBehaviour:
     _detectRange: 0
     _enemyType: 1
     _deadDuration: 0
+    _score: 0
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 0
@@ -286,8 +284,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: f47c209a515bb814cb3488cf77206f3c, type: 3}
   deathSFX:
   - {fileID: 8300000, guid: dece83021d83d2442b98fbfba0d14928, type: 3}
+  dropTable: {fileID: 11400000, guid: 6093b15942a55d24dbb1370b6bf95ca9, type: 2}
   bcolor: {r: 0, g: 1, b: 0, a: 1}
-  rangeAttack: {fileID: 0}
 --- !u!4 &731768251340340955 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: be3776e9bd6e31341b3490a035f6ea50, type: 3}

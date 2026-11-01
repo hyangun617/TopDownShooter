@@ -22,3 +22,5 @@ MonoBehaviour:
     label: GameData
   - type: 0
     label: SFX
+  - type: 4
+    label: DropTable
