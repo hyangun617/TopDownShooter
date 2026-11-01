@@ -36,6 +36,12 @@ public abstract class Enemy : Unit, IPoolable
     [SerializeField] protected List<AudioClip> damageSFX;
     [SerializeField] protected List<AudioClip> deathSFX;
 
+    [Header("DropTable")]
+    [SerializeField] protected DropTable dropTable;
+    public DropTable DropTable => dropTable;
+
+    private BoxCollider col;
+
     // 외부 접근을 위한 프로퍼티
     // BT, FSM 등에서 사용함.
     public LayerMask TargetLayerMask => targetLayerMask;
@@ -46,6 +52,7 @@ public abstract class Enemy : Unit, IPoolable
     public float AttackDelay => Stat.AttackDelay;
     public float DetectRange => Stat.DetectRange;
     public float MoveSpeed => Stat.MovementSpeed;
+    public int Score => Stat.Score;
 
     // 디버깅용 멤버
     [Header("Debug")]
@@ -73,8 +80,12 @@ public abstract class Enemy : Unit, IPoolable
     public virtual void OnSpawn()
     {
         health.Initialize(Stat.MaxHp);
+        controller.SetPhysicsActive(true);
         controller.Initialize();
         animController.Initialize();
+
+        col = GetComponent<BoxCollider>();
+        col.enabled = true;
 
         health.OnDeath += OnHealthDeath;
         health.OnDamaged += HandleDamaged;
@@ -127,12 +138,15 @@ public abstract class Enemy : Unit, IPoolable
         attack.SetAttackSFX(attackSFX);
     }
 
+    // 데스 이벤트
     private void OnHealthDeath()
     {
         HandleDeath();
 
         // 할당 점수 +
         GameManager.Instance.SetScore(GameManager.Instance.Score + Stat.Score);
+        col.enabled = false;
+        controller.SetPhysicsActive(false);
 
         OnAnyEnemyDeath?.Invoke(this);
     }

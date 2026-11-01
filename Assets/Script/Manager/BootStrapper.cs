@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BootStrapper : MonoBehaviour
 {
@@ -35,5 +36,27 @@ public class BootStrapper : MonoBehaviour
     private async UniTask InitializeUIAsync()
     {
         await uiManager.PreloadAllAsync("UI");
+
+#if UNITY_EDITOR
+        await RedirectToEntrySceneInEditor();
+#endif
     }
+
+#if UNITY_EDITOR
+    private const string EntrySceneKey = "PlayFromMainScene.EntryScene";
+
+    private async UniTask RedirectToEntrySceneInEditor()
+    {
+        var entry = UnityEditor.SessionState.GetString(EntrySceneKey, "");
+        if(string.IsNullOrEmpty(entry)) return;
+
+        UnityEditor.SessionState.EraseString(EntrySceneKey);    // 1회성
+
+        // 메인 씬이나 로딩 씬에서 Play한 경우에는 리다이렉트하지 않음.
+        if (entry == SceneManager.GetActiveScene().name || entry == "Load_Scene") return;
+
+        Debug.Log($"[Editor] '{entry}' 씬에서 Play -> 정상 로딩 흐름이로 진입");
+        await gameManager.LoadMgr.SceneLoad(entry);
+    }
+#endif
 }

@@ -234,6 +234,7 @@ MonoBehaviour:
     _detectRange: 0
     _enemyType: 0
     _deadDuration: 0
+    _score: 0
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 0
@@ -249,6 +250,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: f47c209a515bb814cb3488cf77206f3c, type: 3}
   deathSFX:
   - {fileID: 8300000, guid: dece83021d83d2442b98fbfba0d14928, type: 3}
+  dropTable: {fileID: 11400000, guid: 6093b15942a55d24dbb1370b6bf95ca9, type: 2}
   bcolor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!4 &6088439445592927833 stripped
 Transform:

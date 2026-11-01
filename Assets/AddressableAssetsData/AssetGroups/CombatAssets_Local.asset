@@ -34,7 +34,7 @@ MonoBehaviour:
     - CombatAssets
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 81f37bf9a840d2741aa80e389499aa84
-    m_Address: Melee_Skelton_Enemy
+    m_Address: Melee_Skeleton_Enemy
     m_ReadOnly: 0
     m_SerializedLabels:
     - CombatAssets
